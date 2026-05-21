@@ -252,7 +252,7 @@ export function buildAgentRun(
       model: "gemini-2.5-flash",
       googleCloudProduct: "Cloud Run + Cloud Logging",
       loggedDecisions: 5,
-      traceId: `cloud-run/opspilot/${runId}`,
+      traceId: `cloud-run/servicepulse/${runId}`,
       source: "deterministic-demo"
     }
   };

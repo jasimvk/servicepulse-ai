@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getEvidenceDataDir } from "./evidence-store";
-import { BusinessProfile, defaultBusinessProfile } from "./opspilot";
+import { BusinessProfile, defaultBusinessProfile } from "./servicepulse";
 
 const PROFILE_FILE = "business-profile.json";
 

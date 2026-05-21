@@ -6,12 +6,12 @@ import {
   readBusinessProfile,
   saveBusinessProfile
 } from "./profile-store";
-import { BusinessProfile, defaultBusinessProfile } from "./opspilot";
+import { BusinessProfile, defaultBusinessProfile } from "./servicepulse";
 
 let dataDir = "";
 
 beforeEach(async () => {
-  dataDir = await mkdtemp(join(tmpdir(), "opspilot-profile-"));
+  dataDir = await mkdtemp(join(tmpdir(), "servicepulse-profile-"));
 });
 
 afterEach(async () => {

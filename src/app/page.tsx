@@ -20,14 +20,19 @@ import {
   getBusinessSnapshot,
   getDashboardMetrics,
   pipeline
-} from "@/lib/opspilot";
+} from "@/lib/servicepulse";
 import {
   buildSubmissionBrief,
   getSeedEvidenceLedger
 } from "@/lib/evidence-ledger";
-import { OpsPilotWorkbench } from "@/components/opspilot-workbench";
+import { ServicePulseWorkbench } from "@/components/servicepulse-workbench";
 import { SubmissionDashboard } from "@/components/submission-dashboard";
 import { ApiKeySetupAgent } from "@/components/api-key-setup-agent";
+import { ProofPacketPanel } from "@/components/proof-packet-panel";
+import {
+  buildProofPacket,
+  getDefaultFinancialReport
+} from "@/lib/proof-packet";
 
 const agentRun = buildAgentRun({
   customer: "Maya Khan",
@@ -39,6 +44,12 @@ const agentRun = buildAgentRun({
 const metrics = getDashboardMetrics(getBusinessSnapshot());
 const ledger = getSeedEvidenceLedger();
 const submissionBrief = buildSubmissionBrief(ledger);
+const proofPacket = buildProofPacket({
+  ledger,
+  financialReport: getDefaultFinancialReport(),
+  repositoryUrl: "https://github.com/jasimvk/servicepulse-ai",
+  startDate: "05-21-26"
+});
 
 const metricCards = [
   {
@@ -239,9 +250,11 @@ export default function Home() {
 
       <ApiKeySetupAgent />
 
-      <OpsPilotWorkbench initialRun={agentRun} />
+      <ServicePulseWorkbench initialRun={agentRun} />
 
       <SubmissionDashboard ledger={ledger} brief={submissionBrief} />
+
+      <ProofPacketPanel packet={proofPacket} />
 
       {/* Secondary Pipeline and Pilots Info */}
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">

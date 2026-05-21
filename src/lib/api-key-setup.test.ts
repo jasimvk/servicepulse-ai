@@ -13,7 +13,7 @@ import {
 let projectDir = "";
 
 beforeEach(async () => {
-  projectDir = await mkdtemp(join(tmpdir(), "opspilot-keys-"));
+  projectDir = await mkdtemp(join(tmpdir(), "servicepulse-keys-"));
 });
 
 afterEach(async () => {

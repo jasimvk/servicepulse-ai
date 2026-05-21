@@ -4,7 +4,7 @@ import {
   buildSubmissionBrief,
   getSeedEvidenceLedger
 } from "./evidence-ledger";
-import { buildAgentRun, defaultBusinessProfile } from "./opspilot";
+import { buildAgentRun, defaultBusinessProfile } from "./servicepulse";
 
 describe("evidence ledger", () => {
   it("turns an agent run into traceable XPRIZE evidence", () => {

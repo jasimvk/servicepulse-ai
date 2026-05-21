@@ -27,6 +27,7 @@ The app currently includes:
 - Submission evidence ledger with revenue attached, AI decisions logged, paying pilots, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
 - `/api/evidence` route for seeded evidence.
+- `/api/submission/proof-packet` route for judge-ready JSON evidence export.
 
 ## Run Locally
 
@@ -54,12 +55,12 @@ Then set:
 ```bash
 GEMINI_API_KEY=your_google_ai_studio_key
 GEMINI_MODEL=gemini-2.5-flash
-OPSPILOT_DATA_DIR=.data
+SERVICEPULSE_DATA_DIR=.data
 ```
 
 Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence as `deterministic-demo`.
 
-`OPSPILOT_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json` and the business profile is written to `.data/business-profile.json`. `.data/` is ignored by git.
+`SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json` and the business profile is written to `.data/business-profile.json`. `.data/` is ignored by git.
 
 The in-app API Key Setup Agent saves validated Gemini keys to `.env.local`, which is ignored by git. It never returns the raw key back to the browser after saving; it only shows a masked key.
 
@@ -87,15 +88,18 @@ src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
 src/app/api/profile/route.ts         Saved business profile API
 src/app/api/setup/keys/route.ts      Gemini key validation and local env writer
+src/app/api/submission/proof-packet/route.ts Judge proof packet export
 src/components/api-key-setup-agent.tsx API key setup UI
-src/components/opspilot-workbench.tsx Interactive business setup + agent run UI
+src/components/servicepulse-workbench.tsx Interactive business setup + agent run UI
+src/components/proof-packet-panel.tsx Judge evidence export panel
 src/components/submission-dashboard.tsx XPRIZE evidence dashboard
-src/lib/opspilot.ts                  Core seeded demo business model and deterministic run
+src/lib/servicepulse.ts                  Core seeded demo business model and deterministic run
 src/lib/gemini-agent.ts              Gemini API adapter and demo fallback
 src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.local merge logic
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
 src/lib/evidence-store.ts            File-backed local evidence persistence
 src/lib/profile-store.ts             File-backed business profile persistence
+src/lib/proof-packet.ts              Judge-ready submission export model
 ```
 
 ## Product Rule

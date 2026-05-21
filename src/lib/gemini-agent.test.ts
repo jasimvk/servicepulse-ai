@@ -4,7 +4,7 @@ import {
   parseGeminiAgentRun,
   runLeadAgent
 } from "./gemini-agent";
-import { defaultBusinessProfile } from "./opspilot";
+import { defaultBusinessProfile } from "./servicepulse";
 
 const lead = {
   customer: "Maya Khan",
@@ -54,7 +54,7 @@ describe("Gemini agent adapter", () => {
     expect(run.quote.amount).toBe(455);
     expect(run.booking.technician).toBe("Sara");
     expect(run.evidence.model).toBe("gemini-2.5-flash");
-    expect(run.evidence.traceId).toBe("cloud-run/opspilot/gemini-live-1700");
+    expect(run.evidence.traceId).toBe("cloud-run/servicepulse/gemini-live-1700");
   });
 
   it("uses deterministic demo mode when no Gemini API key is configured", async () => {

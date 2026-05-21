@@ -3,9 +3,9 @@ import {
   buildAgentRun,
   getBusinessSnapshot,
   getDashboardMetrics
-} from "./opspilot";
+} from "./servicepulse";
 
-describe("OpsPilot agent workflow", () => {
+describe("ServicePulse agent workflow", () => {
   it("qualifies a service lead, quotes the job, and records demo evidence", () => {
     const run = buildAgentRun({
       customer: "Maya Khan",

@@ -58,9 +58,9 @@ export function SubmissionDashboard({
 
     void refreshEvidence();
 
-    window.addEventListener("opspilot:evidence-updated", refreshEvidence);
+    window.addEventListener("servicepulse:evidence-updated", refreshEvidence);
     return () => {
-      window.removeEventListener("opspilot:evidence-updated", refreshEvidence);
+      window.removeEventListener("servicepulse:evidence-updated", refreshEvidence);
     };
   }, []);
 

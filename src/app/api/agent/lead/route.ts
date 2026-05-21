@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { appendEvidenceEntry } from "@/lib/evidence-store";
 import { runLeadAgent } from "@/lib/gemini-agent";
-import { defaultBusinessProfile } from "@/lib/opspilot";
-import type { BusinessProfile, LeadInput } from "@/lib/opspilot";
+import { defaultBusinessProfile } from "@/lib/servicepulse";
+import type { BusinessProfile, LeadInput } from "@/lib/servicepulse";
 
 export const runtime = "nodejs";
 

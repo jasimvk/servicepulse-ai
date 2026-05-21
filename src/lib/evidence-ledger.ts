@@ -1,4 +1,4 @@
-import type { AgentRun, BusinessProfile } from "./opspilot";
+import type { AgentRun, BusinessProfile } from "./servicepulse";
 
 export type PrizeCriterion =
   | "Business viability"
@@ -73,7 +73,7 @@ export function getSeedEvidenceLedger(): EvidenceEntry[] {
       proofType: "AI operations log",
       summary:
         "Gemini demo mode qualified, quoted, scheduled, invoiced, and queued follow-up for a same-day AC leak job.",
-      traceId: "cloud-run/opspilot/run-ac-1042",
+      traceId: "cloud-run/servicepulse/run-ac-1042",
       source: "deterministic-demo",
       prizeCriteria: ["AI-native operations", "Business viability"],
       metrics: {

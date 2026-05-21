@@ -15,11 +15,11 @@ import {
   BusinessProfile,
   LeadInput,
   defaultBusinessProfile
-} from "@/lib/opspilot";
+} from "@/lib/servicepulse";
 import type { LeadAgentResponse } from "@/lib/gemini-agent";
 import type { EvidenceEntry } from "@/lib/evidence-ledger";
 
-type OpsPilotWorkbenchProps = {
+type ServicePulseWorkbenchProps = {
   initialRun: AgentRun;
 };
 
@@ -37,7 +37,7 @@ function cloneDefaultProfile(): BusinessProfile {
   };
 }
 
-export function OpsPilotWorkbench({ initialRun }: OpsPilotWorkbenchProps) {
+export function ServicePulseWorkbench({ initialRun }: ServicePulseWorkbenchProps) {
   const [profile, setProfile] = useState<BusinessProfile>(cloneDefaultProfile);
   const [lead, setLead] = useState<LeadInput>(defaultLead);
   const [run, setRun] = useState<AgentRun>(initialRun);
@@ -125,7 +125,7 @@ export function OpsPilotWorkbench({ initialRun }: OpsPilotWorkbenchProps) {
       setMode(payload.mode);
       setNotice(payload.notice);
       setLatestEvidence(payload.evidenceEntry);
-      window.dispatchEvent(new Event("opspilot:evidence-updated"));
+      window.dispatchEvent(new Event("servicepulse:evidence-updated"));
     } catch {
       setError("Agent run failed. Check the server log and Gemini API key.");
     } finally {

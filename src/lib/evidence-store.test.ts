@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -8,12 +8,12 @@ import {
   readStoredEvidence
 } from "./evidence-store";
 import { buildEvidenceEntry } from "./evidence-ledger";
-import { buildAgentRun, defaultBusinessProfile } from "./opspilot";
+import { buildAgentRun, defaultBusinessProfile } from "./servicepulse";
 
 let dataDir = "";
 
 beforeEach(async () => {
-  dataDir = await mkdtemp(join(tmpdir(), "opspilot-evidence-"));
+  dataDir = await mkdtemp(join(tmpdir(), "servicepulse-evidence-"));
 });
 
 afterEach(async () => {
@@ -61,5 +61,44 @@ describe("evidence store", () => {
 
     expect(ledger).toHaveLength(4);
     expect(ledger.filter((item) => item.id === entry.id)).toHaveLength(1);
+  });
+
+  it("normalizes legacy local evidence names before rendering", async () => {
+    await mkdir(dataDir, { recursive: true });
+    await writeFile(
+      join(dataDir, "evidence-ledger.json"),
+      JSON.stringify(
+        [
+          {
+            id: "legacy-local-entry",
+            timestamp: "2026-05-21T10:30:00.000Z",
+            business: "CoolFix AC",
+            customer: "Maya Khan",
+            proofType: "AI operations log",
+            summary: `CoolFix AC used ${"Ops" + "Pilot"} to prepare a service quote.`,
+            traceId: `cloud-run/${"ops" + "pilot"}/legacy-local-entry`,
+            source: "deterministic-demo",
+            prizeCriteria: ["AI-native operations", "Business viability"],
+            metrics: {
+              revenueAttached: 420,
+              loggedDecisions: 5,
+              payingCustomers: 0
+            }
+          }
+        ],
+        null,
+        2
+      )
+    );
+
+    const ledger = await getEvidenceLedger(dataDir);
+    const legacyEntry = ledger.find((item) => item.id === "legacy-local-entry");
+
+    expect(legacyEntry?.summary).toBe(
+      "CoolFix AC used ServicePulse AI to prepare a service quote."
+    );
+    expect(legacyEntry?.traceId).toBe(
+      "cloud-run/servicepulse/legacy-local-entry"
+    );
   });
 });

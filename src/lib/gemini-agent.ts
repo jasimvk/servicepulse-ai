@@ -8,7 +8,7 @@ import {
   BusinessProfile,
   LeadInput,
   buildAgentRun
-} from "./opspilot";
+} from "./servicepulse";
 
 type Fetcher = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -142,7 +142,7 @@ export function parseGeminiAgentRun(
         typeof parsed.loggedDecisions === "number"
           ? parsed.loggedDecisions
           : actions.length,
-      traceId: `cloud-run/opspilot/${traceId}`,
+      traceId: `cloud-run/servicepulse/${traceId}`,
       source: "gemini-api"
     }
   };

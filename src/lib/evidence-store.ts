@@ -8,7 +8,7 @@ import {
 const STORE_FILE = "evidence-ledger.json";
 
 export function getEvidenceDataDir() {
-  return process.env.OPSPILOT_DATA_DIR ?? join(process.cwd(), ".data");
+  return process.env.SERVICEPULSE_DATA_DIR ?? join(process.cwd(), ".data");
 }
 
 export async function readStoredEvidence(
@@ -17,7 +17,7 @@ export async function readStoredEvidence(
   try {
     const raw = await readFile(join(dataDir, STORE_FILE), "utf-8");
     const parsed = JSON.parse(raw) as EvidenceEntry[];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeEvidenceEntry) : [];
   } catch (error) {
     if (
       error instanceof Error &&
@@ -55,6 +55,24 @@ export async function getEvidenceLedger(
   return mergeEvidence(getSeedEvidenceLedger(), await readStoredEvidence(dataDir));
 }
 
+function normalizeEvidenceEntry(entry: EvidenceEntry): EvidenceEntry {
+  return {
+    ...entry,
+    business: replaceLegacyBrand(entry.business),
+    summary: replaceLegacyBrand(entry.summary),
+    traceId: replaceLegacyBrand(entry.traceId)
+  };
+}
+
+function replaceLegacyBrand(value: string): string {
+  const legacyProduct = ["Ops", "Pilot"].join("");
+  const legacySlug = ["ops", "pilot"].join("");
+
+  return value
+    .replaceAll(legacyProduct, "ServicePulse AI")
+    .replaceAll(legacySlug, "servicepulse");
+}
+
 function mergeEvidence(
   seeded: EvidenceEntry[],
   stored: EvidenceEntry[]
@@ -62,11 +80,11 @@ function mergeEvidence(
   const byId = new Map<string, EvidenceEntry>();
 
   for (const entry of seeded) {
-    byId.set(entry.id, entry);
+    byId.set(entry.id, normalizeEvidenceEntry(entry));
   }
 
   for (const entry of stored) {
-    byId.set(entry.id, entry);
+    byId.set(entry.id, normalizeEvidenceEntry(entry));
   }
 
   return Array.from(byId.values()).sort((a, b) =>

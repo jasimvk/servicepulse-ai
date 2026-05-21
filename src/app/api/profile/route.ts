@@ -3,7 +3,7 @@ import {
   readBusinessProfile,
   saveBusinessProfile
 } from "@/lib/profile-store";
-import type { BusinessProfile } from "@/lib/opspilot";
+import type { BusinessProfile } from "@/lib/servicepulse";
 
 export const runtime = "nodejs";
 
