@@ -5,6 +5,8 @@ import {
   getDefaultFinancialReport
 } from "@/lib/proof-packet";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const ledger = await getEvidenceLedger();
   const packet = buildProofPacket({

@@ -17,7 +17,7 @@ export type GeminiRuntimeConfig = {
   apiKey?: string;
   maskedApiKey?: string;
   model: string;
-  source: "process.env" | "env.local" | "missing";
+  source: "process.env" | "env.local" | "memory" | "missing";
 };
 
 export type GeminiValidationResult = {
@@ -51,10 +51,23 @@ export function upsertEnvValues(existingEnvText: string, values: EnvMap): string
   return `${nextLines.join("\n")}\n`;
 }
 
+let memoryApiKey: string | null = null;
+let memoryModel: string | null = null;
+
 export async function getGeminiRuntimeConfig(
   projectDir = process.cwd(),
   runtimeEnv: RuntimeEnv = process.env as RuntimeEnv
 ): Promise<GeminiRuntimeConfig> {
+  if (memoryApiKey) {
+    return {
+      configured: true,
+      apiKey: memoryApiKey,
+      maskedApiKey: maskSecret(memoryApiKey),
+      model: memoryModel ?? DEFAULT_GEMINI_MODEL,
+      source: "memory"
+    };
+  }
+
   if (runtimeEnv.GEMINI_API_KEY) {
     return {
       configured: true,
@@ -89,12 +102,30 @@ export async function writeLocalEnvValues(
   values: EnvMap,
   projectDir = process.cwd()
 ): Promise<void> {
-  const path = join(projectDir, ".env.local");
-  const existing = await readTextIfExists(path);
-  const nextText = upsertEnvValues(existing, values);
+  try {
+    const path = join(projectDir, ".env.local");
+    const existing = await readTextIfExists(path);
+    const nextText = upsertEnvValues(existing, values);
 
-  await mkdir(projectDir, { recursive: true });
-  await writeFile(path, nextText, "utf-8");
+    await mkdir(projectDir, { recursive: true });
+    await writeFile(path, nextText, "utf-8");
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error.code === "EROFS" || error.code === "EACCES" || error.code === "EPERM" || error.code === "ENOENT")
+    ) {
+      console.warn("Read-only filesystem detected. Storing Gemini API key in process memory.");
+      if (values.GEMINI_API_KEY) {
+        memoryApiKey = values.GEMINI_API_KEY;
+      }
+      if (values.GEMINI_MODEL) {
+        memoryModel = values.GEMINI_MODEL;
+      }
+      return;
+    }
+    throw error;
+  }
 }
 
 export async function validateGeminiApiKey({

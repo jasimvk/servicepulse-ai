@@ -22,9 +22,9 @@ The app currently includes:
 - `/api/agent/lead` route that runs the agent in either live Gemini mode or deterministic demo mode.
 - `/api/setup/keys` route that validates Gemini keys and writes `.env.local` only after validation succeeds.
 - Gemini adapter using `gemini-2.5-flash` by default.
-- File-backed local business profile and service menu store.
-- File-backed local evidence store for agent runs.
-- Submission evidence ledger with revenue attached, AI decisions logged, paying pilots, readiness scoring, and next proof needed.
+- Database-backed or file-backed business profile and service menu store.
+- Database-backed or file-backed evidence store for agent runs.
+- Submission evidence ledger with quoted value, AI decisions logged, paying-user count, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
 - `/api/evidence` route for seeded evidence.
 - `/api/submission/proof-packet` route for judge-ready JSON evidence export.
@@ -56,11 +56,17 @@ Then set:
 GEMINI_API_KEY=your_google_ai_studio_key
 GEMINI_MODEL=gemini-2.5-flash
 SERVICEPULSE_DATA_DIR=.data
+
+# Optional for production persistent storage
+KV_REST_API_URL=https://your-upstash-kv-url.upstash.io
+KV_REST_API_TOKEN=your_upstash_kv_token
 ```
 
 Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence as `deterministic-demo`.
 
 `SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json` and the business profile is written to `.data/business-profile.json`. `.data/` is ignored by git.
+
+If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
 
 The in-app API Key Setup Agent saves validated Gemini keys to `.env.local`, which is ignored by git. It never returns the raw key back to the browser after saving; it only shows a masked key.
 
@@ -80,6 +86,23 @@ Current test coverage is focused on:
 - Gemini prompt/response adapter
 - evidence ledger and submission readiness scoring
 
+## Public Deployment
+
+You can deploy this application publicly using Vercel (recommended for Next.js) or any Next.js-compatible hosting provider.
+
+### Deploying to Vercel (CLI)
+
+1. Run the Vercel deployment command:
+   ```bash
+   npx vercel
+   ```
+2. Follow the interactive prompts to log in, link your project, and deploy.
+3. Configure your production environment variables (e.g. `GEMINI_API_KEY`) on the Vercel Dashboard under **Project Settings > Environment Variables** to enable live mode.
+
+### Continuous Integration (Git Integration)
+
+Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect it to your Vercel/Netlify account for automatic deployments on every commit.
+
 ## Important Files
 
 ```text
@@ -97,9 +120,10 @@ src/lib/servicepulse.ts                  Core seeded demo business model and det
 src/lib/gemini-agent.ts              Gemini API adapter and demo fallback
 src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.local merge logic
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
-src/lib/evidence-store.ts            File-backed local evidence persistence
-src/lib/profile-store.ts             File-backed business profile persistence
+src/lib/evidence-store.ts            KV-backed or file-backed evidence persistence
+src/lib/profile-store.ts             KV-backed or file-backed business profile persistence
 src/lib/proof-packet.ts              Judge-ready submission export model
+docs/demo-video-script.md            Devpost 2-minute demo video script
 ```
 
 ## Product Rule

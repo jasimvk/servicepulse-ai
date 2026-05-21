@@ -5,6 +5,7 @@ import {
 import { getEvidenceLedger } from "@/lib/evidence-store";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ledger = await getEvidenceLedger();

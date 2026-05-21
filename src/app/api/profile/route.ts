@@ -6,6 +6,7 @@ import {
 import type { BusinessProfile } from "@/lib/servicepulse";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   return NextResponse.json({

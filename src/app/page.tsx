@@ -53,7 +53,7 @@ const proofPacket = buildProofPacket({
 
 const metricCards = [
   {
-    label: "Modeled MRR",
+    label: "Modeled revenue",
     value: `$${metrics.modeledRecurringRevenue.toLocaleString()}`,
     note: "Demo cohort, not claimed revenue",
     icon: BadgeDollarSign
@@ -289,8 +289,8 @@ export default function Home() {
         <div className="rounded-lg border border-white/8 bg-white/[0.02] p-6">
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <div>
-              <p className="font-mono text-xs text-cyan font-semibold">Cohort Revenue</p>
-              <h2 className="text-lg font-bold text-white">Paying Pilot Customers</h2>
+              <p className="font-mono text-xs text-cyan font-semibold">Demo Cohort</p>
+              <h2 className="text-lg font-bold text-white">Customer Templates</h2>
             </div>
             <UsersRound className="text-cyan" size={20} />
           </div>
@@ -389,7 +389,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2 rounded border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 font-mono">
               <Clock3 size={14} className="text-cyan" />
-              Live Logs
+              Demo Logs
             </div>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

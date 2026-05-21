@@ -87,4 +87,26 @@ describe("api key setup utilities", () => {
     expect(fetcher.mock.calls[0][0]).toContain("gemini-2.5-flash");
     expect(fetcher.mock.calls[0][0]).toContain("key=valid-key");
   });
+
+  it("falls back to memory config when writing .env.local fails with EACCES/EROFS", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await writeLocalEnvValues(
+      {
+        GEMINI_API_KEY: "erofs-key",
+        GEMINI_MODEL: "gemini-2.5-flash"
+      },
+      "/nonexistent-dir-test-1234"
+    );
+
+    const config = await getGeminiRuntimeConfig("/nonexistent-dir-test-1234", {});
+    expect(config.apiKey).toBe("erofs-key");
+    expect(config.source).toBe("memory");
+    expect(config.model).toBe("gemini-2.5-flash");
+    expect(warnSpy).toHaveBeenCalledWith(
+      "Read-only filesystem detected. Storing Gemini API key in process memory."
+    );
+
+    warnSpy.mockRestore();
+  });
 });

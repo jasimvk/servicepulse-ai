@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-key-setup";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type KeySetupRequest = {
   geminiApiKey?: string;
@@ -59,13 +60,18 @@ export async function POST(request: Request) {
     GEMINI_MODEL: model
   });
 
+  const updatedConfig = await getGeminiRuntimeConfig();
+  const isMemory = updatedConfig.source === "memory";
+
   return NextResponse.json({
-    message: "Gemini key validated and saved to .env.local.",
+    message: isMemory
+      ? "Gemini key validated and saved in-memory (read-only environment)."
+      : "Gemini key validated and saved to .env.local.",
     gemini: {
       configured: true,
       maskedApiKey: maskSecret(apiKey),
       model,
-      source: "env.local"
+      source: updatedConfig.source
     }
   });
 }
