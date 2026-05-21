@@ -1,0 +1,18 @@
+{
+  "product": "ServicePulse AI",
+  "version": "2026-05-21",
+  "playbooks": [
+    {
+      "id": "local-service-lead-to-cash",
+      "file": "playbooks/local-service-lead-to-cash.md",
+      "operationalCategory": "Small Business Services",
+      "summary": "Turns an inbound service message into qualification, quote, scheduling, invoice drafting, follow-up, and evidence logging."
+    },
+    {
+      "id": "invoice-follow-up",
+      "file": "playbooks/invoice-follow-up.md",
+      "operationalCategory": "Professional Services Access",
+      "summary": "Tracks unpaid service invoices and prepares polite, owner-reviewable reminders with evidence of each AI decision."
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --cyan: #1BBFE0;
+  --cyan-soft: #A2DDEB;
+  --black: #000000;
+  --near-black: #0B0E0C;
+  --dark-gray: #1b211e;
+  --mid-gray: #7D8D83;
+  --off-white: #FAFAFA;
+  --white: #FFFFFF;
+  --border-dark: rgba(255, 255, 255, 0.08);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-pixel: 'VT323', monospace;
+
+  /* Re-mapping standard theme variables */
+  --background: var(--near-black);
+  --foreground: var(--off-white);
+  --ink: var(--white);
+  --muted: var(--mid-gray);
+  --line: var(--border-dark);
+  --panel: rgba(18, 23, 20, 0.65);
+  --panel-strong: rgba(11, 14, 12, 0.95);
+  --accent: var(--cyan);
+  --accent-2: #fbbf24;
+  --accent-3: #34d399;
+}
+
+@theme {
+  --color-cyan: var(--cyan);
+  --color-cyan-soft: var(--cyan-soft);
+  --color-near-black: var(--near-black);
+  --color-dark-gray: var(--dark-gray);
+  --font-sans: var(--font-sans);
+  --font-pixel: var(--font-pixel);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--near-black);
+}
+
+body {
+  margin: 0;
+  background: var(--near-black);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Custom Selection Highlight */
+::selection {
+  background: var(--cyan);
+  color: var(--near-black);
+}
+
+/* Aurora background style */
+.aurora-bg {
+  background:
+    radial-gradient(ellipse 65% 45% at 80% 20%, rgba(27,191,224,0.14), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 20% 80%, rgba(27,191,224,0.07), transparent 75%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(27,191,224,0.03), transparent 70%),
+    var(--near-black);
+}
+
+/* Glowing cyber borders */
+.neon-border {
+  border: 1px solid rgba(27,191,224,0.2);
+  box-shadow: 0 0 15px rgba(27,191,224,0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.neon-border:hover {
+  border-color: rgba(27,191,224,0.4);
+  box-shadow: 0 0 20px rgba(27,191,224,0.1);
+}
+
+.neon-glow-cyan {
+  text-shadow: 0 0 8px rgba(27,191,224,0.6);
+}
+
+/* Pixel / VT323 accent text class */
+.pixel-text {
+  font-family: var(--font-pixel);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--near-black);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
+}
+
