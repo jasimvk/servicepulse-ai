@@ -19,13 +19,16 @@ The app currently includes:
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
 - Business onboarding/workbench form for service menu, territory, technician, and lead message.
+- Pilot CRM for tracking real outreach, paid pilots, permission, payment links, and evidence links.
 - `/api/agent/lead` route that runs the agent in either live Gemini mode or deterministic demo mode.
 - `/api/setup/keys` route that validates Gemini keys and writes `.env.local` only after validation succeeds.
 - Gemini adapter using `gemini-2.5-flash` by default.
 - Database-backed or file-backed business profile and service menu store.
 - Database-backed or file-backed evidence store for agent runs.
+- Database-backed or file-backed pilot pipeline store for real business validation.
 - Submission evidence ledger with quoted value, AI decisions logged, paying-user count, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
+- `/api/pilots` route for the real business pilot pipeline.
 - `/api/evidence` route for seeded evidence.
 - `/api/submission/proof-packet` route for judge-ready JSON evidence export.
 
@@ -64,7 +67,7 @@ KV_REST_API_TOKEN=your_upstash_kv_token
 
 Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence as `deterministic-demo`.
 
-`SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json` and the business profile is written to `.data/business-profile.json`. `.data/` is ignored by git.
+`SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json`, the business profile is written to `.data/business-profile.json`, and real pilot records are written to `.data/pilot-pipeline.json`. `.data/` is ignored by git.
 
 If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
 
@@ -85,6 +88,7 @@ Current test coverage is focused on:
 - agent workflow and business metrics
 - Gemini prompt/response adapter
 - evidence ledger and submission readiness scoring
+- pilot pipeline persistence, API behavior, and proof packet export metrics
 
 ## Public Deployment
 
@@ -109,10 +113,12 @@ Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect 
 src/app/page.tsx                     Main product/dashboard page
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
+src/app/api/pilots/route.ts          Real business pilot pipeline API
 src/app/api/profile/route.ts         Saved business profile API
 src/app/api/setup/keys/route.ts      Gemini key validation and local env writer
 src/app/api/submission/proof-packet/route.ts Judge proof packet export
 src/components/api-key-setup-agent.tsx API key setup UI
+src/components/pilot-crm-panel.tsx   Real business pilot tracker UI
 src/components/servicepulse-workbench.tsx Interactive business setup + agent run UI
 src/components/proof-packet-panel.tsx Judge evidence export panel
 src/components/submission-dashboard.tsx XPRIZE evidence dashboard
@@ -121,6 +127,7 @@ src/lib/gemini-agent.ts              Gemini API adapter and demo fallback
 src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.local merge logic
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
 src/lib/evidence-store.ts            KV-backed or file-backed evidence persistence
+src/lib/pilot-store.ts               KV-backed or file-backed pilot pipeline persistence
 src/lib/profile-store.ts             KV-backed or file-backed business profile persistence
 src/lib/proof-packet.ts              Judge-ready submission export model
 docs/demo-video-script.md            Devpost 2-minute demo video script

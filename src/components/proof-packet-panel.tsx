@@ -49,6 +49,10 @@ export function ProofPacketPanel({ packet }: ProofPacketPanelProps) {
               <ProofMetric label="Evidence items" value={packet.metrics.evidenceItems} />
               <ProofMetric label="Real revenue" value={`$${packet.metrics.totalRevenue}`} />
               <ProofMetric label="Paying users" value={packet.metrics.payingUsers} />
+              <ProofMetric label="Real pilots" value={packet.metrics.realPilots} />
+              <ProofMetric label="Pilot evidence" value={packet.metrics.pilotEvidenceReady} />
+              <ProofMetric label="Setup cash" value={`$${packet.metrics.pilotSetupRevenue}`} />
+              <ProofMetric label="Monthly" value={`$${packet.metrics.pilotMonthlyCommitted}`} />
             </div>
 
             <div className="mt-4 rounded border border-white/5 bg-black/20 p-3">

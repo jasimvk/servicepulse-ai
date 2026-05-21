@@ -1,4 +1,5 @@
 import type { EvidenceEntry } from "./evidence-ledger";
+import { getPilotSummary, type PilotSummary } from "./pilot-store";
 
 type RequiredItemStatus = "ready" | "needs-owner" | "needs-live-evidence";
 
@@ -39,6 +40,11 @@ export type ProofPacket = {
     usersAcquired: number;
     aiDecisionsLogged: number;
     evidenceItems: number;
+    realPilots: number;
+    paidPilots: number;
+    pilotEvidenceReady: number;
+    pilotSetupRevenue: number;
+    pilotMonthlyCommitted: number;
   };
   honesty: {
     claimsRealRevenue: boolean;
@@ -76,6 +82,7 @@ export type ProofPacket = {
 type BuildProofPacketOptions = {
   ledger: EvidenceEntry[];
   financialReport?: FinancialReport;
+  pilotSummary?: PilotSummary;
   repositoryUrl?: string;
   startDate: string;
   country?: string;
@@ -110,6 +117,7 @@ export function buildProofPacket({
   demoVideoUrl,
   financialReport = getDefaultFinancialReport(),
   ledger,
+  pilotSummary = getPilotSummary([]),
   repositoryUrl = DEFAULT_REPOSITORY_URL,
   startDate
 }: BuildProofPacketOptions): ProofPacket {
@@ -138,7 +146,12 @@ export function buildProofPacket({
       payingUsers: financialReport.payingUsers,
       usersAcquired: financialReport.usersAcquired,
       aiDecisionsLogged,
-      evidenceItems: ledger.length
+      evidenceItems: ledger.length,
+      realPilots: pilotSummary.total,
+      paidPilots: pilotSummary.paidPilots,
+      pilotEvidenceReady: pilotSummary.evidenceReady,
+      pilotSetupRevenue: pilotSummary.setupRevenue,
+      pilotMonthlyCommitted: pilotSummary.monthlyCommitted
     },
     honesty: {
       claimsRealRevenue,
@@ -196,6 +209,15 @@ export function buildProofPacket({
         label: "Live revenue proof",
         status: claimsRealRevenue ? "ready" : "needs-live-evidence",
         value: links.profitEvidence
+      },
+      {
+        id: "business-pilot",
+        label: "Real business pilot evidence",
+        status:
+          pilotSummary.paidPilots > 0 && pilotSummary.evidenceReady > 0
+            ? "ready"
+            : "needs-live-evidence",
+        value: `${pilotSummary.total} pilots, ${pilotSummary.paidPilots} paid, ${pilotSummary.evidenceReady} evidence-ready`
       }
     ]
   };

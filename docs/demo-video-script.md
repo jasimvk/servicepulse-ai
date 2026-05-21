@@ -24,19 +24,19 @@
 
 ---
 
-### [0:50 - 1:20] Segment 3: The AI Evidence Ledger
-* **Visual:** Scroll down to the **XPRIZE Submission Room & Evidence Ledger**.
+### [0:50 - 1:20] Segment 3: Pilot CRM & Evidence Ledger
+* **Visual:** Scroll down to the **Pilot CRM** and **XPRIZE Submission Room & Evidence Ledger**.
 * **Visual Action:** Mouse hover over the glowing status LEDs: **Business Viability**, **AI-Native Operations**, and **Category Impact**.
 * **Audio / Voiceover:**  
-  "But how do we prove this works for judges? We built the **Evidence Ledger** directly into the product core. Every lead, quote, and technician dispatch can become a traceable proof item."
-* **Visual Action:** Scroll to the Proof Packet panel and show the JSON export, repository link, playbook manifest, running-evidence file, and profit-evidence file.
+  "But how do we prove this works for judges? We built a **Pilot CRM** and **Evidence Ledger** directly into the product core. Outreach, paid pilots, owner permission, payment links, and every lead, quote, and technician dispatch can become traceable proof items."
+* **Visual Action:** Scroll to the Proof Packet panel and show real pilot metrics, JSON export, repository link, playbook manifest, running-evidence file, and profit-evidence file.
 * **Audio / Voiceover:**  
   "Every AI decision is logged with transparency. Judges can inspect the model version, source mode, trace ID, and the exact evidence status without confusing prototype data for real revenue."
 
 ---
 
 ### [1:20 - 1:45] Segment 4: XPRIZE Criteria Alignment
-* **Visual:** Zoom into the proof packet metrics showing **$0 real revenue**, **0 paying users**, and the required items still needing owner input.
+* **Visual:** Zoom into the proof packet metrics showing **$0 real revenue**, **0 paying users**, real pilot counters, and the required items still needing owner input.
 * **Audio / Voiceover:**  
   "ServicePulse AI is honest about what is live today. The prototype demonstrates the end-to-end workflow, while the proof packet marks country, demo video, and live revenue proof as items still needing owner or production evidence."
 * **Visual Action:** Pulse the status badges showing **needs owner**, **ready**, and **needs live evidence**.

@@ -29,10 +29,12 @@ import { ServicePulseWorkbench } from "@/components/servicepulse-workbench";
 import { SubmissionDashboard } from "@/components/submission-dashboard";
 import { ApiKeySetupAgent } from "@/components/api-key-setup-agent";
 import { ProofPacketPanel } from "@/components/proof-packet-panel";
+import { PilotCrmPanel } from "@/components/pilot-crm-panel";
 import {
   buildProofPacket,
   getDefaultFinancialReport
 } from "@/lib/proof-packet";
+import { getPilotSummary, type PilotRecord } from "@/lib/pilot-store";
 
 const agentRun = buildAgentRun({
   customer: "Maya Khan",
@@ -43,6 +45,8 @@ const agentRun = buildAgentRun({
 
 const metrics = getDashboardMetrics(getBusinessSnapshot());
 const ledger = getSeedEvidenceLedger();
+const initialPilots: PilotRecord[] = [];
+const pilotSummary = getPilotSummary(initialPilots);
 const submissionBrief = buildSubmissionBrief(ledger);
 const proofPacket = buildProofPacket({
   ledger,
@@ -251,6 +255,8 @@ export default function Home() {
       <ApiKeySetupAgent />
 
       <ServicePulseWorkbench initialRun={agentRun} />
+
+      <PilotCrmPanel initialPilots={initialPilots} initialSummary={pilotSummary} />
 
       <SubmissionDashboard ledger={ledger} brief={submissionBrief} />
 
