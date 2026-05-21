@@ -1,4 +1,5 @@
 import type { EvidenceEntry } from "./evidence-ledger";
+import { getJobSummary, type JobSummary } from "./job-store";
 import { getPilotSummary, type PilotSummary } from "./pilot-store";
 
 type RequiredItemStatus = "ready" | "needs-owner" | "needs-live-evidence";
@@ -45,6 +46,11 @@ export type ProofPacket = {
     pilotEvidenceReady: number;
     pilotSetupRevenue: number;
     pilotMonthlyCommitted: number;
+    customerJobs: number;
+    bookedJobs: number;
+    paidJobs: number;
+    jobQuotedValue: number;
+    jobPaidRevenue: number;
   };
   honesty: {
     claimsRealRevenue: boolean;
@@ -82,6 +88,7 @@ export type ProofPacket = {
 type BuildProofPacketOptions = {
   ledger: EvidenceEntry[];
   financialReport?: FinancialReport;
+  jobSummary?: JobSummary;
   pilotSummary?: PilotSummary;
   repositoryUrl?: string;
   startDate: string;
@@ -116,6 +123,7 @@ export function buildProofPacket({
   country,
   demoVideoUrl,
   financialReport = getDefaultFinancialReport(),
+  jobSummary = getJobSummary([]),
   ledger,
   pilotSummary = getPilotSummary([]),
   repositoryUrl = DEFAULT_REPOSITORY_URL,
@@ -151,7 +159,12 @@ export function buildProofPacket({
       paidPilots: pilotSummary.paidPilots,
       pilotEvidenceReady: pilotSummary.evidenceReady,
       pilotSetupRevenue: pilotSummary.setupRevenue,
-      pilotMonthlyCommitted: pilotSummary.monthlyCommitted
+      pilotMonthlyCommitted: pilotSummary.monthlyCommitted,
+      customerJobs: jobSummary.total,
+      bookedJobs: jobSummary.bookedJobs,
+      paidJobs: jobSummary.paidJobs,
+      jobQuotedValue: jobSummary.quotedValue,
+      jobPaidRevenue: jobSummary.paidRevenue
     },
     honesty: {
       claimsRealRevenue,
@@ -218,6 +231,12 @@ export function buildProofPacket({
             ? "ready"
             : "needs-live-evidence",
         value: `${pilotSummary.total} pilots, ${pilotSummary.paidPilots} paid, ${pilotSummary.evidenceReady} evidence-ready`
+      },
+      {
+        id: "customer-job",
+        label: "Saved customer job evidence",
+        status: jobSummary.paidJobs > 0 ? "ready" : "needs-live-evidence",
+        value: `${jobSummary.total} jobs, ${jobSummary.bookedJobs} booked, ${jobSummary.paidJobs} paid`
       }
     ]
   };

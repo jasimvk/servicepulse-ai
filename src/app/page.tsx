@@ -30,11 +30,13 @@ import { SubmissionDashboard } from "@/components/submission-dashboard";
 import { ApiKeySetupAgent } from "@/components/api-key-setup-agent";
 import { ProofPacketPanel } from "@/components/proof-packet-panel";
 import { PilotCrmPanel } from "@/components/pilot-crm-panel";
+import { JobInboxPanel } from "@/components/job-inbox-panel";
 import {
   buildProofPacket,
   getDefaultFinancialReport
 } from "@/lib/proof-packet";
 import { getPilotSummary, type PilotRecord } from "@/lib/pilot-store";
+import { getJobSummary, type JobRecord } from "@/lib/job-store";
 
 const agentRun = buildAgentRun({
   customer: "Maya Khan",
@@ -45,12 +47,15 @@ const agentRun = buildAgentRun({
 
 const metrics = getDashboardMetrics(getBusinessSnapshot());
 const ledger = getSeedEvidenceLedger();
+const initialJobs: JobRecord[] = [];
+const jobSummary = getJobSummary(initialJobs);
 const initialPilots: PilotRecord[] = [];
 const pilotSummary = getPilotSummary(initialPilots);
 const submissionBrief = buildSubmissionBrief(ledger);
 const proofPacket = buildProofPacket({
   ledger,
   financialReport: getDefaultFinancialReport(),
+  jobSummary,
   repositoryUrl: "https://github.com/jasimvk/servicepulse-ai",
   startDate: "05-21-26"
 });
@@ -255,6 +260,8 @@ export default function Home() {
       <ApiKeySetupAgent />
 
       <ServicePulseWorkbench initialRun={agentRun} />
+
+      <JobInboxPanel initialJobs={initialJobs} initialSummary={jobSummary} />
 
       <PilotCrmPanel initialPilots={initialPilots} initialSummary={pilotSummary} />
 

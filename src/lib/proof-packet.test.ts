@@ -5,6 +5,7 @@ import {
   getDefaultFinancialReport
 } from "./proof-packet";
 import { getPilotSummary, type PilotRecord } from "./pilot-store";
+import { getJobSummary, type JobRecord } from "./job-store";
 
 const paidPilot: PilotRecord = {
   id: "jumeirah-ac-pro",
@@ -25,6 +26,26 @@ const paidPilot: PilotRecord = {
   nextActionDue: "2026-05-22",
   notes: "Owner paid setup and approved proof capture.",
   updatedAt: "2026-05-21T11:00:00.000Z"
+};
+
+const paidJob: JobRecord = {
+  id: "maya-khan-ac-leak",
+  customerName: "Maya Khan",
+  customerContact: "+971500000000",
+  businessName: "CoolFix AC",
+  channel: "whatsapp",
+  message: "My AC is leaking water and I need someone today after 4pm.",
+  service: "AC leak repair",
+  location: "Jumeirah",
+  urgency: "today",
+  stage: "paid",
+  quoteAmount: 420,
+  scheduledWindow: "Today, 4:30 PM - 6:00 PM",
+  paymentUrl: "https://pay.example.com/maya",
+  evidenceUrl: "https://drive.google.com/job-proof",
+  nextAction: "Send review request",
+  notes: "Deposit collected.",
+  updatedAt: "2026-05-21T12:00:00.000Z"
 };
 
 describe("proof packet", () => {
@@ -84,6 +105,25 @@ describe("proof packet", () => {
     expect(packet.metrics.pilotMonthlyCommitted).toBe(199);
     expect(
       packet.requiredItems.find((item) => item.id === "business-pilot")?.status
+    ).toBe("ready");
+  });
+
+  it("includes saved customer job metrics when owners track work", () => {
+    const packet = buildProofPacket({
+      ledger: getSeedEvidenceLedger(),
+      financialReport: getDefaultFinancialReport(),
+      jobSummary: getJobSummary([paidJob]),
+      repositoryUrl: "https://github.com/jasimvk/servicepulse-ai",
+      startDate: "05-21-26"
+    });
+
+    expect(packet.metrics.customerJobs).toBe(1);
+    expect(packet.metrics.bookedJobs).toBe(1);
+    expect(packet.metrics.paidJobs).toBe(1);
+    expect(packet.metrics.jobQuotedValue).toBe(420);
+    expect(packet.metrics.jobPaidRevenue).toBe(420);
+    expect(
+      packet.requiredItems.find((item) => item.id === "customer-job")?.status
     ).toBe("ready");
   });
 });
