@@ -77,6 +77,6 @@ describe("MinimalSaasConsole", () => {
     expect(screen.getByText("Agent runs 120/750")).toBeTruthy();
     expect(screen.getByText("Sam Dispatcher")).toBeTruthy();
     expect(screen.getByText("Job Inbox")).toBeTruthy();
-    expect(screen.getByText("Proof Packet")).toBeTruthy();
+    expect(screen.getByText("Ops Report")).toBeTruthy();
   });
 });

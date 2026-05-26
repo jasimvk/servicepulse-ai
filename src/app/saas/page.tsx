@@ -1,15 +1,5 @@
-import { MinimalSaasConsole } from "@/components/minimal-saas-console";
-import { getAccountSummary, readAccount } from "@/lib/account-store";
-
-export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
 
 export default async function SaasPage() {
-  const account = await readAccount();
-
-  return (
-    <MinimalSaasConsole
-      account={account}
-      summary={getAccountSummary(account)}
-    />
-  );
+  redirect("/dashboard");
 }

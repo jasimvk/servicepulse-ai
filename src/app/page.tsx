@@ -1,15 +1,5 @@
-import { MinimalSaasConsole } from "@/components/minimal-saas-console";
-import { getAccountSummary, readAccount } from "@/lib/account-store";
-
-export const dynamic = "force-dynamic";
+import { SaasLandingPage } from "@/components/saas-landing-page";
 
 export default async function Home() {
-  const account = await readAccount();
-
-  return (
-    <MinimalSaasConsole
-      account={account}
-      summary={getAccountSummary(account)}
-    />
-  );
+  return <SaasLandingPage />;
 }

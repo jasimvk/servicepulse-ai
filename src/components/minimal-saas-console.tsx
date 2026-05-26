@@ -30,13 +30,13 @@ const productModules = [
     icon: BriefcaseBusiness
   },
   {
-    label: "Pilot CRM",
-    detail: "Outreach, permission, evidence",
+    label: "Customer CRM",
+    detail: "Customers, owners, and permissions",
     icon: UsersRound
   },
   {
-    label: "Proof Packet",
-    detail: "Exportable operating evidence",
+    label: "Ops Report",
+    detail: "Exportable operating summary",
     icon: FileJson2
   }
 ] as const;
@@ -147,8 +147,11 @@ export function MinimalSaasConsole({
             <div className="rounded border border-black/10 bg-white p-5">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold">Product Modules</h2>
-                <Link className="text-xs font-semibold text-black/55" href="/">
-                  Open product
+                <Link
+                  className="text-xs font-semibold text-black/55"
+                  href="/dashboard"
+                >
+                  Open console
                 </Link>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -181,7 +184,7 @@ export function MinimalSaasConsole({
                 <div className="mt-4 space-y-4">
                   <UsageMeter label="Agent runs" meter={summary.usage.agentRuns} />
                   <UsageMeter label="Jobs" meter={summary.usage.jobs} />
-                  <UsageMeter label="Pilots" meter={summary.usage.pilots} />
+                  <UsageMeter label="Customers" meter={summary.usage.pilots} />
                 </div>
               </div>
 
@@ -233,10 +236,10 @@ export function MinimalSaasConsole({
                 </div>
                 <Link
                   className="inline-flex items-center gap-2 rounded border border-black/10 bg-[#fbfbf9] px-3 py-2 text-sm font-semibold"
-                  href="/"
+                  href="/dashboard#billing"
                 >
                   <Settings size={14} />
-                  Manage in product
+                  Manage workspace
                 </Link>
               </div>
             </div>

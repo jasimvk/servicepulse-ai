@@ -16,11 +16,12 @@ ServicePulse AI is aligned to the prize criteria:
 
 The app currently includes:
 
-- Customer-facing SaaS console at `/` for workspace onboarding, plan limits, team seats, usage, and billing readiness.
+- Customer-facing SaaS landing page at `/` with product workflow, pricing, and console calls to action.
+- Customer SaaS console at `/dashboard` for workspace onboarding, plan limits, team seats, usage, and billing readiness.
 - Separate personal prize workspace at `/prize` for submission evidence and judging materials.
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics in the personal prize workspace.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
-- Alternate `/saas` console route for the same customer-facing SaaS surface.
+- Alternate `/saas` route that redirects to the customer SaaS console.
 - Business onboarding/workbench form for service menu, territory, technician, and lead message.
 - Job Inbox for tracking customer requests through quote, booking, invoice, payment, and follow-up.
 - Pilot CRM for tracking real outreach, paid pilots, permission, payment links, and evidence links.
@@ -51,7 +52,7 @@ Open:
 
 ```text
 http://localhost:3000
-http://localhost:3000/saas
+http://localhost:3000/dashboard
 http://localhost:3000/prize
 ```
 
@@ -122,8 +123,9 @@ Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect 
 ## Important Files
 
 ```text
-src/app/page.tsx                     Customer-facing minimal SaaS console
-src/app/saas/page.tsx                Alternate SaaS console route
+src/app/page.tsx                     Customer-facing SaaS landing page
+src/app/dashboard/page.tsx           Customer SaaS console route
+src/app/saas/page.tsx                Redirect to the SaaS console route
 src/app/prize/page.tsx               Personal prize/submission workspace
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
@@ -134,7 +136,8 @@ src/app/api/profile/route.ts         Saved business profile API
 src/app/api/setup/keys/route.ts      Gemini key validation and local env writer
 src/app/api/submission/proof-packet/route.ts Judge proof packet export
 src/components/api-key-setup-agent.tsx API key setup UI
-src/components/minimal-saas-console.tsx Separate SaaS workspace console
+src/components/saas-landing-page.tsx Customer SaaS landing page
+src/components/minimal-saas-console.tsx Customer SaaS workspace console
 src/components/saas-account-panel.tsx SaaS account and billing controls
 src/components/job-inbox-panel.tsx   Customer job tracker UI
 src/components/pilot-crm-panel.tsx   Real business pilot tracker UI
