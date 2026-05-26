@@ -19,6 +19,7 @@ let dataDir = "";
 
 const activeAccount: AccountSettings = {
   workspaceName: "CoolFix AC",
+  workspaceSlug: "coolfix-ac",
   ownerEmail: "owner@coolfix.example",
   plan: "growth",
   subscriptionStatus: "active",
@@ -30,6 +31,29 @@ const activeAccount: AccountSettings = {
   checkoutUrl: "https://buy.stripe.com/test",
   customerPortalUrl: "https://billing.stripe.com/test",
   dataRegion: "us",
+  usage: {
+    agentRunsThisMonth: 120,
+    jobsThisMonth: 18,
+    pilotsThisMonth: 4
+  },
+  teamMembers: [
+    {
+      id: "owner",
+      name: "Nadia Owner",
+      email: "owner@coolfix.example",
+      role: "owner",
+      status: "active",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    },
+    {
+      id: "dispatcher",
+      name: "Sam Dispatcher",
+      email: "sam@coolfix.example",
+      role: "operator",
+      status: "invited",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    }
+  ],
   updatedAt: "2026-05-26T07:00:00.000Z"
 };
 
@@ -50,7 +74,19 @@ describe("account store", () => {
     expect(getAccountSummary(account)).toMatchObject({
       readyForBilling: false,
       seatsAvailable: 1,
-      planLabel: "Starter"
+      planLabel: "Starter",
+      launchReady: false,
+      goLiveScore: 25,
+      usage: {
+        agentRuns: {
+          limit: 150,
+          remaining: 150
+        },
+        jobs: {
+          limit: 25,
+          remaining: 25
+        }
+      }
     });
   });
 
@@ -61,9 +97,33 @@ describe("account store", () => {
     expect(account).toEqual(activeAccount);
     expect(getAccountSummary(account)).toMatchObject({
       readyForBilling: true,
-      seatsAvailable: 2,
+      seatsAvailable: 3,
       planLabel: "Growth",
-      monthlyRecurringRevenue: 199
+      monthlyRecurringRevenue: 199,
+      activeMembers: 1,
+      invitedMembers: 1,
+      launchReady: true,
+      goLiveScore: 100,
+      usage: {
+        agentRuns: {
+          limit: 750,
+          used: 120,
+          remaining: 630,
+          percentUsed: 16
+        },
+        jobs: {
+          limit: 150,
+          used: 18,
+          remaining: 132,
+          percentUsed: 12
+        },
+        pilots: {
+          limit: 15,
+          used: 4,
+          remaining: 11,
+          percentUsed: 27
+        }
+      }
     });
   });
 

@@ -31,7 +31,6 @@ import { ApiKeySetupAgent } from "@/components/api-key-setup-agent";
 import { ProofPacketPanel } from "@/components/proof-packet-panel";
 import { PilotCrmPanel } from "@/components/pilot-crm-panel";
 import { JobInboxPanel } from "@/components/job-inbox-panel";
-import { SaasAccountPanel } from "@/components/saas-account-panel";
 import {
   buildProofPacket,
   getDefaultFinancialReport
@@ -142,6 +141,12 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <a
+              className="hidden rounded border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:border-cyan/30 hover:text-cyan sm:inline-flex"
+              href="/saas"
+            >
+              SaaS Console
+            </a>
             <div className="hidden items-center gap-2 rounded border border-cyan/20 bg-cyan/5 px-3 py-1.5 text-xs text-[#a2ddeb] sm:flex font-mono">
               <span className="h-1.5 w-1.5 rounded-full bg-cyan animate-pulse shadow-[0_0_8px_#1BBFE0]" />
               Gemini + Cloud Ready
@@ -267,11 +272,6 @@ export default function Home() {
       </section>
 
       <ApiKeySetupAgent />
-
-      <SaasAccountPanel
-        initialAccount={initialAccount}
-        initialSummary={accountSummary}
-      />
 
       <ServicePulseWorkbench initialRun={agentRun} />
 

@@ -60,6 +60,7 @@ export type ProofPacket = {
     invoiceBalanceDue: number;
     overdueInvoices: number;
     saasReady: boolean;
+    saasLaunchScore: number;
     subscriptionRevenue: number;
     seatsUsed: number;
     seatsIncluded: number;
@@ -182,7 +183,8 @@ export function buildProofPacket({
       invoiceCollected: jobSummary.amountCollected,
       invoiceBalanceDue: jobSummary.balanceDue,
       overdueInvoices: jobSummary.overdueJobs,
-      saasReady: accountSummary.readyForBilling,
+      saasReady: accountSummary.launchReady,
+      saasLaunchScore: accountSummary.goLiveScore,
       subscriptionRevenue: accountSummary.monthlyRecurringRevenue,
       seatsUsed: accountSummary.seatsUsed,
       seatsIncluded: accountSummary.seatsIncluded
@@ -264,6 +266,12 @@ export function buildProofPacket({
         label: "SaaS billing setup",
         status: accountSummary.readyForBilling ? "ready" : "needs-owner",
         value: `${accountSummary.planLabel}, $${accountSummary.monthlyRecurringRevenue} recurring, ${accountSummary.seatsUsed}/${accountSummary.seatsIncluded} seats`
+      },
+      {
+        id: "saas-launch",
+        label: "SaaS launch checklist",
+        status: accountSummary.launchReady ? "ready" : "needs-owner",
+        value: `${accountSummary.goLiveScore}% launch score`
       }
     ]
   };

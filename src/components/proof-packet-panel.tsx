@@ -64,6 +64,10 @@ export function ProofPacketPanel({ packet }: ProofPacketPanelProps) {
                 value={packet.metrics.saasReady ? "yes" : "no"}
               />
               <ProofMetric
+                label="Launch"
+                value={`${packet.metrics.saasLaunchScore}%`}
+              />
+              <ProofMetric
                 label="Subscription"
                 value={`$${packet.metrics.subscriptionRevenue}`}
               />

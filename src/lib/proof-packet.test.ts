@@ -55,6 +55,7 @@ const paidJob: JobRecord = {
 
 const activeAccount: AccountSettings = {
   workspaceName: "CoolFix AC",
+  workspaceSlug: "coolfix-ac",
   ownerEmail: "owner@coolfix.example",
   plan: "growth",
   subscriptionStatus: "active",
@@ -66,6 +67,29 @@ const activeAccount: AccountSettings = {
   checkoutUrl: "https://buy.stripe.com/test",
   customerPortalUrl: "https://billing.stripe.com/test",
   dataRegion: "us",
+  usage: {
+    agentRunsThisMonth: 120,
+    jobsThisMonth: 18,
+    pilotsThisMonth: 4
+  },
+  teamMembers: [
+    {
+      id: "owner",
+      name: "Nadia Owner",
+      email: "owner@coolfix.example",
+      role: "owner",
+      status: "active",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    },
+    {
+      id: "dispatcher",
+      name: "Sam Dispatcher",
+      email: "sam@coolfix.example",
+      role: "operator",
+      status: "invited",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    }
+  ],
   updatedAt: "2026-05-26T07:00:00.000Z"
 };
 
@@ -161,11 +185,15 @@ describe("proof packet", () => {
     });
 
     expect(packet.metrics.saasReady).toBe(true);
+    expect(packet.metrics.saasLaunchScore).toBe(100);
     expect(packet.metrics.subscriptionRevenue).toBe(199);
-    expect(packet.metrics.seatsUsed).toBe(3);
+    expect(packet.metrics.seatsUsed).toBe(2);
     expect(packet.metrics.seatsIncluded).toBe(5);
     expect(
       packet.requiredItems.find((item) => item.id === "billing-setup")?.status
+    ).toBe("ready");
+    expect(
+      packet.requiredItems.find((item) => item.id === "saas-launch")?.status
     ).toBe("ready");
   });
 });

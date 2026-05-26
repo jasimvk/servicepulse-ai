@@ -2,19 +2,24 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import {
+  BarChart3,
+  CheckCircle2,
+  Circle,
   CreditCard,
-  Database,
   ExternalLink,
+  Gauge,
   Loader2,
   RefreshCw,
   Save,
   ShieldCheck,
+  UserPlus,
   UsersRound
 } from "lucide-react";
 import type {
   AccountSettings,
   AccountSummary,
   AccountPlan,
+  TeamMemberRole,
   SubscriptionStatus
 } from "@/lib/account-store";
 
@@ -50,6 +55,11 @@ export function SaasAccountPanel({
   const [account, setAccount] = useState(initialAccount);
   const [summary, setSummary] = useState(initialSummary);
   const [draft, setDraft] = useState(initialAccount);
+  const [memberDraft, setMemberDraft] = useState({
+    name: "",
+    email: "",
+    role: "operator" as TeamMemberRole
+  });
   const [status, setStatus] = useState("SaaS controls ready.");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -100,6 +110,11 @@ export function SaasAccountPanel({
             monthlyPrice: Number(draft.monthlyPrice),
             seatsIncluded: Number(draft.seatsIncluded),
             seatsUsed: Number(draft.seatsUsed),
+            usage: {
+              agentRunsThisMonth: Number(draft.usage.agentRunsThisMonth),
+              jobsThisMonth: Number(draft.usage.jobsThisMonth),
+              pilotsThisMonth: Number(draft.usage.pilotsThisMonth)
+            },
             updatedAt: new Date().toISOString()
           }
         })
@@ -119,6 +134,31 @@ export function SaasAccountPanel({
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function addTeamMember() {
+    if (!memberDraft.email.trim()) {
+      setStatus("Invite email required.");
+      return;
+    }
+
+    const email = memberDraft.email.trim();
+    setDraft((current) => ({
+      ...current,
+      teamMembers: [
+        ...current.teamMembers,
+        {
+          id: slugify(email),
+          name: memberDraft.name.trim() || email,
+          email,
+          role: memberDraft.role,
+          status: "invited",
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    }));
+    setMemberDraft({ name: "", email: "", role: "operator" });
+    setStatus("Seat staged. Save account to persist.");
   }
 
   const readyLabel = summary.readyForBilling ? "Ready: yes" : "Ready: no";
@@ -153,9 +193,13 @@ export function SaasAccountPanel({
           <AccountMetric
             icon={UsersRound}
             label="Seats"
-            value={`Seats ${account.seatsUsed}/${account.seatsIncluded}`}
+            value={`Seats ${summary.seatsUsed}/${summary.seatsIncluded}`}
           />
-          <AccountMetric icon={Database} label="Billing" value={readyLabel} />
+          <AccountMetric
+            icon={Gauge}
+            label="Launch"
+            value={`Launch ${summary.goLiveScore}%`}
+          />
         </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -179,11 +223,85 @@ export function SaasAccountPanel({
               <MiniFact label="Billing" value={account.billingCycle} />
               <MiniFact label="Region" value={account.dataRegion.toUpperCase()} />
               <MiniFact label="Trial ends" value={account.trialEndsAt} />
+              <MiniFact label="Active seats" value={summary.activeMembers.toString()} />
+              <MiniFact label="Invited" value={summary.invitedMembers.toString()} />
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <AccountLink href={account.checkoutUrl} label="Checkout" />
               <AccountLink href={account.customerPortalUrl} label="Portal" />
+            </div>
+
+            <div className="mt-4 rounded border border-white/5 bg-white/[0.02] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xs font-bold text-white">Launch Checklist</h3>
+                <span className="font-mono text-xs text-cyan">
+                  Launch {summary.goLiveScore}%
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {summary.goLiveChecklist.map((item) => (
+                  <div
+                    className="flex items-center gap-2 rounded border border-white/5 bg-black/20 px-3 py-2 text-xs text-white/70"
+                    key={item.id}
+                  >
+                    {item.ready ? (
+                      <CheckCircle2 className="text-emerald-300" size={14} />
+                    ) : (
+                      <Circle className="text-white/25" size={14} />
+                    )}
+                    {item.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 rounded border border-white/5 bg-white/[0.02] p-3">
+              <div className="flex items-center gap-2 text-cyan">
+                <BarChart3 size={16} />
+                <h3 className="text-xs font-bold text-white">Plan Usage</h3>
+              </div>
+              <div className="mt-3 space-y-3">
+                <UsageBar
+                  label="Agent runs"
+                  meter={summary.usage.agentRuns}
+                />
+                <UsageBar label="Jobs" meter={summary.usage.jobs} />
+                <UsageBar label="Pilots" meter={summary.usage.pilots} />
+              </div>
+            </div>
+
+            <div className="mt-4 rounded border border-white/5 bg-white/[0.02] p-3">
+              <div className="flex items-center gap-2 text-cyan">
+                <UsersRound size={16} />
+                <h3 className="text-xs font-bold text-white">Team Seats</h3>
+              </div>
+              <div className="mt-3 space-y-2">
+                {account.teamMembers.length === 0 ? (
+                  <div className="rounded border border-dashed border-white/10 bg-black/20 px-3 py-3 text-xs text-white/45">
+                    No seats assigned.
+                  </div>
+                ) : (
+                  account.teamMembers.map((member) => (
+                    <div
+                      className="flex flex-wrap items-center justify-between gap-3 rounded border border-white/5 bg-black/20 px-3 py-2"
+                      key={member.id}
+                    >
+                      <div>
+                        <p className="text-xs font-semibold text-white">
+                          {member.name}
+                        </p>
+                        <p className="mt-0.5 font-mono text-[10px] text-white/45">
+                          {member.email} · {member.role}
+                        </p>
+                      </div>
+                      <span className="rounded border border-cyan/25 bg-cyan/10 px-2 py-0.5 font-mono text-[10px] uppercase text-cyan">
+                        {member.status}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
@@ -202,6 +320,13 @@ export function SaasAccountPanel({
                 value={draft.workspaceName}
                 onChange={(workspaceName) =>
                   setDraft((current) => ({ ...current, workspaceName }))
+                }
+              />
+              <AccountInput
+                label="Workspace slug"
+                value={draft.workspaceSlug}
+                onChange={(workspaceSlug) =>
+                  setDraft((current) => ({ ...current, workspaceSlug }))
                 }
               />
               <AccountInput
@@ -279,7 +404,7 @@ export function SaasAccountPanel({
               <AccountInput
                 label="Seats used"
                 type="number"
-                value={draft.seatsUsed.toString()}
+                value={(draft.teamMembers.length || draft.seatsUsed).toString()}
                 onChange={(seatsUsed) =>
                   setDraft((current) => ({
                     ...current,
@@ -336,6 +461,96 @@ export function SaasAccountPanel({
                   setDraft((current) => ({ ...current, customerPortalUrl }))
                 }
               />
+              <AccountInput
+                label="Agent runs"
+                type="number"
+                value={draft.usage.agentRunsThisMonth.toString()}
+                onChange={(agentRunsThisMonth) =>
+                  setDraft((current) => ({
+                    ...current,
+                    usage: {
+                      ...current.usage,
+                      agentRunsThisMonth: Number(agentRunsThisMonth)
+                    }
+                  }))
+                }
+              />
+              <AccountInput
+                label="Jobs this month"
+                type="number"
+                value={draft.usage.jobsThisMonth.toString()}
+                onChange={(jobsThisMonth) =>
+                  setDraft((current) => ({
+                    ...current,
+                    usage: {
+                      ...current.usage,
+                      jobsThisMonth: Number(jobsThisMonth)
+                    }
+                  }))
+                }
+              />
+              <AccountInput
+                label="Pilots this month"
+                type="number"
+                value={draft.usage.pilotsThisMonth.toString()}
+                onChange={(pilotsThisMonth) =>
+                  setDraft((current) => ({
+                    ...current,
+                    usage: {
+                      ...current.usage,
+                      pilotsThisMonth: Number(pilotsThisMonth)
+                    }
+                  }))
+                }
+              />
+            </div>
+
+            <div className="mt-4 rounded border border-white/5 bg-white/[0.02] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xs font-bold text-white">Add Seat</h3>
+                <UserPlus className="text-cyan" size={16} />
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_0.8fr_auto]">
+                <AccountInput
+                  label="Name"
+                  value={memberDraft.name}
+                  onChange={(name) =>
+                    setMemberDraft((current) => ({ ...current, name }))
+                  }
+                />
+                <AccountInput
+                  label="Email"
+                  value={memberDraft.email}
+                  onChange={(email) =>
+                    setMemberDraft((current) => ({ ...current, email }))
+                  }
+                />
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-white/55">
+                  Role
+                  <select
+                    className="mt-1.5 w-full rounded border border-white/10 bg-[#080808] px-3 py-2 text-sm text-white outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/35"
+                    value={memberDraft.role}
+                    onChange={(event) =>
+                      setMemberDraft((current) => ({
+                        ...current,
+                        role: event.target.value as TeamMemberRole
+                      }))
+                    }
+                  >
+                    <option value="operator">operator</option>
+                    <option value="technician">technician</option>
+                    <option value="owner">owner</option>
+                  </select>
+                </label>
+                <button
+                  className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded border border-cyan/35 bg-cyan/10 px-3 text-xs font-bold uppercase tracking-wider text-cyan transition hover:bg-cyan/15"
+                  type="button"
+                  onClick={addTeamMember}
+                >
+                  <UserPlus size={14} />
+                  Add
+                </button>
+              </div>
             </div>
 
             <button
@@ -411,6 +626,31 @@ function MiniFact({ label, value }: { label: string; value: string }) {
   );
 }
 
+function UsageBar({
+  label,
+  meter
+}: {
+  label: string;
+  meter: AccountSummary["usage"]["agentRuns"];
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <span className="text-white/65">
+          {label} {meter.used}/{meter.limit}
+        </span>
+        <span className="font-mono text-white/45">{meter.remaining} left</span>
+      </div>
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded bg-white/5">
+        <div
+          className="h-full rounded bg-cyan"
+          style={{ width: `${meter.percentUsed}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function AccountLink({ href, label }: { href: string; label: string }) {
   const isReady = Boolean(href);
 
@@ -434,4 +674,13 @@ function AccountLink({ href, label }: { href: string; label: string }) {
       <ExternalLink size={13} />
     </a>
   );
+}
+
+function slugify(value: string): string {
+  const slug = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || `member-${Date.now()}`;
 }

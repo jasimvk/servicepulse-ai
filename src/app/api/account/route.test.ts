@@ -9,6 +9,7 @@ let dataDir = "";
 
 const account: AccountSettings = {
   workspaceName: "CoolFix AC",
+  workspaceSlug: "coolfix-ac",
   ownerEmail: "owner@coolfix.example",
   plan: "growth",
   subscriptionStatus: "active",
@@ -20,6 +21,29 @@ const account: AccountSettings = {
   checkoutUrl: "https://buy.stripe.com/test",
   customerPortalUrl: "https://billing.stripe.com/test",
   dataRegion: "us",
+  usage: {
+    agentRunsThisMonth: 120,
+    jobsThisMonth: 18,
+    pilotsThisMonth: 4
+  },
+  teamMembers: [
+    {
+      id: "owner",
+      name: "Nadia Owner",
+      email: "owner@coolfix.example",
+      role: "owner",
+      status: "active",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    },
+    {
+      id: "dispatcher",
+      name: "Sam Dispatcher",
+      email: "sam@coolfix.example",
+      role: "operator",
+      status: "invited",
+      updatedAt: "2026-05-26T07:00:00.000Z"
+    }
+  ],
   updatedAt: "2026-05-26T07:00:00.000Z"
 };
 
@@ -47,7 +71,9 @@ describe("/api/account", () => {
       summary: {
         planLabel: "Starter",
         readyForBilling: false,
-        seatsAvailable: 1
+        seatsAvailable: 1,
+        launchReady: false,
+        goLiveScore: 25
       }
     });
   });
@@ -70,7 +96,18 @@ describe("/api/account", () => {
       planLabel: "Growth",
       readyForBilling: true,
       monthlyRecurringRevenue: 199,
-      seatsAvailable: 2
+      seatsAvailable: 3,
+      launchReady: true,
+      goLiveScore: 100,
+      activeMembers: 1,
+      invitedMembers: 1,
+      usage: {
+        agentRuns: {
+          limit: 750,
+          used: 120,
+          remaining: 630
+        }
+      }
     });
   });
 });

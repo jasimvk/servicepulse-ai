@@ -14,10 +14,10 @@
 
 ---
 
-### [0:20 - 0:50] Segment 2: SaaS Account, Lead Triage & Job Inbox
-* **Visual:** Screen capture zoom-in on the **SaaS Account**, **Interactive Workbench**, and **Job Inbox**. Show a lead message being entered:
+### [0:20 - 0:50] Segment 2: SaaS Console, Lead Triage & Job Inbox
+* **Visual:** Open `/saas`, then switch to the product dashboard, **Interactive Workbench**, and **Job Inbox**. Show a lead message being entered:
   *“My AC is blowing warm air and making a loud rattling sound. Can someone come by today? I live in North Austin.”*
-* **Visual Action:** Show the workspace plan, seats, billing readiness, and checkout/portal fields before moving into the lead flow.
+* **Visual Action:** Show the minimal SaaS console with workspace plan, seats, launch score, usage, team, and billing readiness before moving into the lead flow.
 * **Visual Action:** Run the playbook, then save the request as a job with quote, schedule, invoice status, paid amount, balance, and next action.
 * **Audio / Voiceover:**  
   "Let’s see it in action. When a new customer request arrives, ServicePulse AI uses Gemini to triage the lead. It extracts the location, assesses urgency, assigns a confidence level, and drafts a precise quote."

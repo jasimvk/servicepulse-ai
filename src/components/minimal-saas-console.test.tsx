@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { SaasAccountPanel } from "./saas-account-panel";
+import { MinimalSaasConsole } from "./minimal-saas-console";
 import {
   defaultAccount,
   getAccountSummary,
@@ -47,41 +47,36 @@ const account: AccountSettings = {
   updatedAt: "2026-05-26T07:00:00.000Z"
 };
 
-describe("SaasAccountPanel", () => {
-  it("renders the default SaaS account state", () => {
+describe("MinimalSaasConsole", () => {
+  it("renders a minimal onboarding console for a new workspace", () => {
     render(
-      <SaasAccountPanel
-        autoLoad={false}
-        initialAccount={defaultAccount}
-        initialSummary={getAccountSummary(defaultAccount)}
+      <MinimalSaasConsole
+        account={defaultAccount}
+        summary={getAccountSummary(defaultAccount)}
       />
     );
 
-    expect(screen.getByText("SaaS Account")).toBeTruthy();
-    expect(screen.getAllByText("Starter").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Ready: no").length).toBeGreaterThan(0);
-    expect(screen.getByText("Seats 0/1")).toBeTruthy();
-    expect(screen.getAllByText("Launch 25%").length).toBeGreaterThan(0);
+    expect(screen.getByText("ServicePulse")).toBeTruthy();
+    expect(screen.getByText("Starter")).toBeTruthy();
+    expect(screen.getByText("Launch 25%")).toBeTruthy();
     expect(screen.getByText("Agent runs 0/150")).toBeTruthy();
+    expect(screen.getByText("No team seats")).toBeTruthy();
   });
 
-  it("renders an active workspace with recurring revenue and seats", () => {
+  it("renders subscribed workspace, usage, team, and product modules", () => {
     render(
-      <SaasAccountPanel
-        autoLoad={false}
-        initialAccount={account}
-        initialSummary={getAccountSummary(account)}
+      <MinimalSaasConsole
+        account={account}
+        summary={getAccountSummary(account)}
       />
     );
 
     expect(screen.getByText("CoolFix AC")).toBeTruthy();
-    expect(screen.getAllByText("Growth").length).toBeGreaterThan(0);
-    expect(screen.getByText("$199")).toBeTruthy();
-    expect(screen.getAllByText("Ready: yes").length).toBeGreaterThan(0);
-    expect(screen.getByText("Seats 2/5")).toBeTruthy();
-    expect(screen.getAllByText("Launch 100%").length).toBeGreaterThan(0);
+    expect(screen.getByText("Growth")).toBeTruthy();
+    expect(screen.getByText("Launch 100%")).toBeTruthy();
     expect(screen.getByText("Agent runs 120/750")).toBeTruthy();
     expect(screen.getByText("Sam Dispatcher")).toBeTruthy();
-    expect(screen.getByText("invited")).toBeTruthy();
+    expect(screen.getByText("Job Inbox")).toBeTruthy();
+    expect(screen.getByText("Proof Packet")).toBeTruthy();
   });
 });
