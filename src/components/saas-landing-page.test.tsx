@@ -17,12 +17,11 @@ describe("SaasLandingPage", () => {
     });
     expect(workspaceLinks).toHaveLength(2);
     expect(
-      workspaceLinks.every((link) => link.getAttribute("href") === "/dashboard")
+      workspaceLinks.every((link) => link.getAttribute("href") === "/signup")
     ).toBe(true);
-    expect(
-      screen.getByRole("link", { name: "View demo console" })
-        .getAttribute("href")
-    ).toBe("/dashboard");
+    expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe(
+      "/login"
+    );
     expect(screen.getByText("Lead intake")).toBeTruthy();
     expect(screen.getByText("Job scheduling")).toBeTruthy();
     expect(screen.getByText("Invoice follow-up")).toBeTruthy();

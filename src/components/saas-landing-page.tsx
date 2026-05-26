@@ -78,7 +78,7 @@ export function SaasLandingPage() {
             </Link>
             <Link
               className="inline-flex items-center gap-2 rounded-lg bg-[#141414] px-3 py-2 font-semibold text-white transition hover:bg-black"
-              href="/dashboard"
+              href="/signup"
             >
               Start workspace
               <ArrowRight size={14} />
@@ -102,16 +102,16 @@ export function SaasLandingPage() {
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
               className="inline-flex items-center gap-2 rounded-lg bg-[#141414] px-4 py-3 text-sm font-semibold text-white transition hover:bg-black"
-              href="/dashboard"
+              href="/signup"
             >
               Start workspace
               <ArrowRight size={15} />
             </Link>
             <Link
               className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/75 transition hover:border-black/25 hover:text-black"
-              href="/dashboard"
+              href="/login"
             >
-              View demo console
+              Sign in
             </Link>
           </div>
         </div>

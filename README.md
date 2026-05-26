@@ -17,7 +17,8 @@ ServicePulse AI is aligned to the prize criteria:
 The app currently includes:
 
 - Customer-facing SaaS landing page at `/` with product workflow, pricing, and console calls to action.
-- Customer SaaS console at `/dashboard` for workspace onboarding, plan limits, team seats, usage, Stripe checkout, and billing readiness.
+- Supabase-ready sign in/sign up at `/login` and `/signup`.
+- Customer SaaS console at `/dashboard` protected by Supabase Auth when configured, with workspace onboarding, plan limits, team seats, usage, Stripe checkout, and billing readiness.
 - Separate personal prize workspace at `/prize` for submission evidence and judging materials.
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics in the personal prize workspace.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
@@ -33,6 +34,7 @@ The app currently includes:
 - Database-backed or file-backed job store for owner workflow tracking.
 - Database-backed or file-backed pilot pipeline store for real business validation.
 - Database-backed or file-backed account store for SaaS billing, team, usage, and launch readiness.
+- Supabase Postgres migration for workspaces, members, customers, jobs, usage events, and billing accounts with Row Level Security.
 - Submission evidence ledger with quoted value, AI decisions logged, paying-user count, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
 - `/api/account` route for SaaS workspace, plan, billing, team, usage, and launch settings.
@@ -55,6 +57,8 @@ Open:
 
 ```text
 http://localhost:3000
+http://localhost:3000/login
+http://localhost:3000/signup
 http://localhost:3000/dashboard
 http://localhost:3000/prize
 ```
@@ -75,6 +79,11 @@ GEMINI_MODEL=gemini-2.5-flash
 SERVICEPULSE_DATA_DIR=.data
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+# Supabase Auth + Postgres
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+SUPABASE_SECRET_KEY=sb_secret_your_server_key
+
 # Stripe subscription billing
 STRIPE_SECRET_KEY=sk_test_or_live_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
@@ -91,7 +100,9 @@ Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence a
 
 `SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json`, the business profile is written to `.data/business-profile.json`, account settings are written to `.data/account-settings.json`, jobs are written to `.data/job-pipeline.json`, and real pilot records are written to `.data/pilot-pipeline.json`. `.data/` is ignored by git.
 
-If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
+If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage for demo stores. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
+
+Supabase is the production customer database/auth path. Add the Supabase env vars, then run `supabase/migrations/20260526090000_initial_servicepulse_schema.sql` in the Supabase SQL editor or through the Supabase CLI. Until Supabase is configured, `/dashboard` shows the missing auth configuration instead of exposing a shared demo workspace.
 
 Stripe billing is server-side only. The customer console posts to `/api/billing/checkout`, which creates a subscription Checkout Session, and `/api/billing/portal`, which opens the hosted customer portal after a Stripe customer is saved. Configure the Stripe webhook endpoint at `/api/billing/webhook` and send at least `checkout.session.completed` and `customer.subscription.deleted`.
 
@@ -114,7 +125,7 @@ Current test coverage is focused on:
 - evidence ledger and submission readiness scoring
 - job inbox, invoice tracking, API behavior, and proof packet export metrics
 - pilot pipeline persistence, API behavior, and proof packet export metrics
-- SaaS account persistence, Stripe billing helpers/API behavior, minimal console rendering, and proof packet export metrics
+- SaaS account persistence, Supabase auth/database helpers, Stripe billing helpers/API behavior, minimal console rendering, and proof packet export metrics
 
 ## Public Deployment
 
@@ -138,6 +149,10 @@ Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect 
 ```text
 src/app/page.tsx                     Customer-facing SaaS landing page
 src/app/dashboard/page.tsx           Customer SaaS console route
+src/app/login/page.tsx               Customer sign-in page
+src/app/signup/page.tsx              Customer sign-up page
+src/app/auth/callback/route.ts       Supabase auth code exchange route
+src/app/logout/route.ts              Supabase sign-out route
 src/app/saas/page.tsx                Redirect to the SaaS console route
 src/app/prize/page.tsx               Personal prize/submission workspace
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
@@ -152,6 +167,7 @@ src/app/api/profile/route.ts         Saved business profile API
 src/app/api/setup/keys/route.ts      Gemini key validation and local env writer
 src/app/api/submission/proof-packet/route.ts Judge proof packet export
 src/components/api-key-setup-agent.tsx API key setup UI
+src/components/auth-panel.tsx        Customer auth and setup-required UI
 src/components/saas-landing-page.tsx Customer SaaS landing page
 src/components/minimal-saas-console.tsx Customer SaaS workspace console
 src/components/saas-account-panel.tsx SaaS account and billing controls
@@ -166,12 +182,15 @@ src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.loc
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
 src/lib/evidence-store.ts            KV-backed or file-backed evidence persistence
 src/lib/account-store.ts             KV-backed or file-backed SaaS account, team, usage, and launch persistence
+src/lib/supabase-auth.ts             Supabase auth config, server session, and protection helpers
+src/lib/workspace-account-store.ts   Supabase workspace-to-account persistence mapper
 src/lib/stripe-billing.ts            Stripe checkout, portal, and webhook billing helpers
 src/lib/job-store.ts                 KV-backed or file-backed customer job persistence
 src/lib/pilot-store.ts               KV-backed or file-backed pilot pipeline persistence
 src/lib/profile-store.ts             KV-backed or file-backed business profile persistence
 src/lib/proof-packet.ts              Judge-ready submission export model
 docs/demo-video-script.md            Devpost 2-minute demo video script
+supabase/migrations/20260526090000_initial_servicepulse_schema.sql Production SaaS schema with RLS
 ```
 
 ## Product Rule
