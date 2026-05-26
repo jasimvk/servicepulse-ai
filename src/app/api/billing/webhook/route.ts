@@ -6,6 +6,10 @@ import {
   applyStripeSubscriptionDeleted,
   getStripeClient
 } from "@/lib/stripe-billing";
+import {
+  saveWorkspaceStripeCheckoutSession,
+  saveWorkspaceStripeSubscriptionDeleted
+} from "@/lib/workspace-account-store";
 
 export const dynamic = "force-dynamic";
 
@@ -47,24 +51,37 @@ export async function POST(request: Request) {
     );
   }
 
-  await handleStripeEvent(event);
+  try {
+    await handleStripeEvent(event);
+  } catch {
+    return NextResponse.json(
+      { error: "stripe_webhook_sync_failed" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ received: true });
 }
 
 async function handleStripeEvent(event: Stripe.Event) {
   if (event.type === "checkout.session.completed") {
-    const account = await readAccount();
-    await saveAccount(
-      applyStripeCheckoutSession(
-        account,
-        event.data.object as Stripe.Checkout.Session
-      )
-    );
+    const session = event.data.object as Stripe.Checkout.Session;
+    const syncedToWorkspace = await saveWorkspaceStripeCheckoutSession(session);
+
+    if (!syncedToWorkspace) {
+      const account = await readAccount();
+      await saveAccount(applyStripeCheckoutSession(account, session));
+    }
   }
 
   if (event.type === "customer.subscription.deleted") {
-    const account = await readAccount();
-    await saveAccount(applyStripeSubscriptionDeleted(account));
+    const subscription = event.data.object as Stripe.Subscription;
+    const syncedToWorkspace =
+      await saveWorkspaceStripeSubscriptionDeleted(subscription);
+
+    if (!syncedToWorkspace) {
+      const account = await readAccount();
+      await saveAccount(applyStripeSubscriptionDeleted(account));
+    }
   }
 }

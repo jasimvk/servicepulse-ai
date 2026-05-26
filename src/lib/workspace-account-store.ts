@@ -6,7 +6,16 @@ import {
   type AccountSettings,
   type SubscriptionStatus
 } from "./account-store";
-import { getSupabaseServerClient, type ServicePulseUser } from "./supabase-auth";
+import {
+  getSupabaseAdminClient,
+  getSupabaseAdminConfigStatus,
+  getSupabaseServerClient,
+  type ServicePulseUser
+} from "./supabase-auth";
+import {
+  resolveStripePlan,
+  type StripeCheckoutSessionLike
+} from "./stripe-billing";
 
 export type WorkspaceRow = {
   billing_cycle?: null | string;
@@ -25,6 +34,19 @@ export type WorkspaceRow = {
   subscription_status?: null | string;
   trial_ends_at?: null | string;
   updated_at?: null | string;
+};
+
+export type StripeSubscriptionLike = {
+  customer?: null | string | { id?: string | null };
+  id?: null | string;
+  metadata?: null | Record<string, string>;
+};
+
+export type WorkspaceStripeUpdate = {
+  customerId: string;
+  slug: string;
+  subscriptionId: string;
+  update: Partial<WorkspaceRow>;
 };
 
 export function workspaceInsertFromAccount(
@@ -152,6 +174,114 @@ export async function saveWorkspaceAccountForUser(
   };
 }
 
+export function workspaceStripeCheckoutUpdateFromSession(
+  session: StripeCheckoutSessionLike
+): WorkspaceStripeUpdate {
+  const customerId = getStripeEntityId(session.customer);
+  const subscriptionId = getStripeEntityId(session.subscription);
+  const slug = session.metadata?.workspaceSlug || "";
+
+  return {
+    customerId,
+    slug,
+    subscriptionId,
+    update: removeUndefined({
+      owner_email: session.customer_email || undefined,
+      plan: resolveStripePlan(session.metadata?.plan),
+      stripe_customer_id: customerId || undefined,
+      stripe_subscription_id: subscriptionId || undefined,
+      subscription_status: "active",
+      updated_at: new Date().toISOString()
+    })
+  };
+}
+
+export function workspaceStripeDeletedUpdateFromSubscription(
+  subscription: StripeSubscriptionLike
+): WorkspaceStripeUpdate {
+  return {
+    customerId: getStripeEntityId(subscription.customer),
+    slug: subscription.metadata?.workspaceSlug || "",
+    subscriptionId: subscription.id || "",
+    update: {
+      subscription_status: "canceled",
+      updated_at: new Date().toISOString()
+    }
+  };
+}
+
+export async function saveWorkspaceStripeCheckoutSession(
+  session: StripeCheckoutSessionLike,
+  supabaseClient?: SupabaseClient
+) {
+  if (!supabaseClient && !getSupabaseAdminConfigStatus().isConfigured) {
+    return false;
+  }
+
+  const supabase = supabaseClient || getSupabaseAdminClient();
+  const stripeUpdate = workspaceStripeCheckoutUpdateFromSession(session);
+  const workspace =
+    (stripeUpdate.slug
+      ? await updateWorkspaceByMatch(supabase, stripeUpdate.update, {
+          column: "slug",
+          value: stripeUpdate.slug
+        })
+      : null) ||
+    (stripeUpdate.customerId
+      ? await updateWorkspaceByMatch(supabase, stripeUpdate.update, {
+          column: "stripe_customer_id",
+          value: stripeUpdate.customerId
+        })
+      : null);
+
+  if (!workspace) {
+    return false;
+  }
+
+  await upsertBillingAccount(supabase, workspace.id, stripeUpdate, "active");
+
+  return true;
+}
+
+export async function saveWorkspaceStripeSubscriptionDeleted(
+  subscription: StripeSubscriptionLike,
+  supabaseClient?: SupabaseClient
+) {
+  if (!supabaseClient && !getSupabaseAdminConfigStatus().isConfigured) {
+    return false;
+  }
+
+  const supabase = supabaseClient || getSupabaseAdminClient();
+  const stripeUpdate = workspaceStripeDeletedUpdateFromSubscription(subscription);
+  const workspace =
+    (stripeUpdate.subscriptionId
+      ? await updateWorkspaceByMatch(supabase, stripeUpdate.update, {
+          column: "stripe_subscription_id",
+          value: stripeUpdate.subscriptionId
+        })
+      : null) ||
+    (stripeUpdate.customerId
+      ? await updateWorkspaceByMatch(supabase, stripeUpdate.update, {
+          column: "stripe_customer_id",
+          value: stripeUpdate.customerId
+        })
+      : null) ||
+    (stripeUpdate.slug
+      ? await updateWorkspaceByMatch(supabase, stripeUpdate.update, {
+          column: "slug",
+          value: stripeUpdate.slug
+        })
+      : null);
+
+  if (!workspace) {
+    return false;
+  }
+
+  await upsertBillingAccount(supabase, workspace.id, stripeUpdate, "canceled");
+
+  return true;
+}
+
 function normalizePlan(value: unknown): AccountPlan {
   return value === "growth" || value === "pro" ? value : "starter";
 }
@@ -181,4 +311,62 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 
   return slug || defaultAccount.workspaceSlug;
+}
+
+function getStripeEntityId(
+  value: StripeCheckoutSessionLike["customer"] | StripeSubscriptionLike["customer"]
+) {
+  if (!value) {
+    return "";
+  }
+
+  return typeof value === "string" ? value : value.id || "";
+}
+
+function removeUndefined<T extends Record<string, unknown>>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)
+  ) as Partial<T>;
+}
+
+async function updateWorkspaceByMatch(
+  supabase: SupabaseClient,
+  update: Partial<WorkspaceRow>,
+  match: { column: string; value: string }
+) {
+  const { data, error } = await supabase
+    .from("workspaces")
+    .update(update)
+    .eq(match.column, match.value)
+    .select("id")
+    .limit(1);
+
+  if (error) {
+    throw error;
+  }
+
+  return ((data || []) as Array<{ id: string }>)[0] || null;
+}
+
+async function upsertBillingAccount(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  stripeUpdate: WorkspaceStripeUpdate,
+  status: "active" | "canceled"
+) {
+  const { error } = await supabase.from("billing_accounts").upsert(
+    removeUndefined({
+      current_period_end: null,
+      status,
+      stripe_customer_id: stripeUpdate.customerId || undefined,
+      stripe_subscription_id: stripeUpdate.subscriptionId || undefined,
+      updated_at: new Date().toISOString(),
+      workspace_id: workspaceId
+    }),
+    { onConflict: "workspace_id" }
+  );
+
+  if (error) {
+    throw error;
+  }
 }

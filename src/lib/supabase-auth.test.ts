@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getSupabaseAdminConfigStatus,
   getSupabaseConfigStatus,
   getSupabaseLoginRedirect,
   isProtectedCustomerPath
@@ -21,6 +22,18 @@ describe("supabase auth helpers", () => {
       getSupabaseConfigStatus({
         NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_123"
+      })
+    ).toEqual({
+      isConfigured: true,
+      missing: []
+    });
+  });
+
+  it("reports configured Supabase admin access when a server secret is present", () => {
+    expect(
+      getSupabaseAdminConfigStatus({
+        NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
+        SUPABASE_SECRET_KEY: "sb_secret_123"
       })
     ).toEqual({
       isConfigured: true,

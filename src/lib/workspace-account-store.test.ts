@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { defaultAccount, type AccountSettings } from "./account-store";
 import {
   accountFromWorkspaceRow,
-  workspaceInsertFromAccount
+  workspaceInsertFromAccount,
+  workspaceStripeCheckoutUpdateFromSession,
+  workspaceStripeDeletedUpdateFromSubscription
 } from "./workspace-account-store";
 
 const account: AccountSettings = {
@@ -57,6 +59,50 @@ describe("workspace account store mapping", () => {
       checkoutUrl: "/api/billing/checkout",
       customerPortalUrl: "/api/billing/portal",
       updatedAt: "2026-05-26T08:00:00.000Z"
+    });
+  });
+
+  it("maps Stripe checkout data into a workspace billing update", () => {
+    const update = workspaceStripeCheckoutUpdateFromSession({
+      customer: "cus_123",
+      customer_email: "billing@coolfix.example",
+      metadata: {
+        plan: "pro",
+        workspaceSlug: "coolfix-ac"
+      },
+      subscription: "sub_123"
+    });
+
+    expect(update).toMatchObject({
+      customerId: "cus_123",
+      slug: "coolfix-ac",
+      subscriptionId: "sub_123",
+      update: {
+        owner_email: "billing@coolfix.example",
+        plan: "pro",
+        stripe_customer_id: "cus_123",
+        stripe_subscription_id: "sub_123",
+        subscription_status: "active"
+      }
+    });
+  });
+
+  it("maps Stripe subscription deletion into a cancel update", () => {
+    expect(
+      workspaceStripeDeletedUpdateFromSubscription({
+        customer: "cus_123",
+        id: "sub_123",
+        metadata: {
+          workspaceSlug: "coolfix-ac"
+        }
+      })
+    ).toMatchObject({
+      customerId: "cus_123",
+      slug: "coolfix-ac",
+      subscriptionId: "sub_123",
+      update: {
+        subscription_status: "canceled"
+      }
     });
   });
 });

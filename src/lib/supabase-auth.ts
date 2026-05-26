@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 type SupabaseEnv = Record<string, string | undefined>;
@@ -36,6 +37,24 @@ export function getSupabaseConfigStatus(
   return {
     isConfigured: missing.length === 0,
     missing: [...missing]
+  };
+}
+
+export function getSupabaseSecretKey(env: SupabaseEnv = process.env) {
+  return env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY || "";
+}
+
+export function getSupabaseAdminConfigStatus(
+  env: SupabaseEnv = process.env
+): SupabaseConfigStatus {
+  const missing = [
+    !env.NEXT_PUBLIC_SUPABASE_URL ? "NEXT_PUBLIC_SUPABASE_URL" : "",
+    !getSupabaseSecretKey(env) ? "SUPABASE_SECRET_KEY" : ""
+  ].filter(Boolean);
+
+  return {
+    isConfigured: missing.length === 0,
+    missing
   };
 }
 
@@ -80,6 +99,25 @@ export async function getSupabaseServerClient() {
             // Server Components cannot always write cookies. Auth routes can.
           }
         }
+      }
+    }
+  );
+}
+
+export function getSupabaseAdminClient() {
+  const status = getSupabaseAdminConfigStatus();
+
+  if (!status.isConfigured) {
+    throw new Error(`Supabase admin is missing: ${status.missing.join(", ")}`);
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    getSupabaseSecretKey(),
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
     }
   );

@@ -102,9 +102,9 @@ Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence a
 
 If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage for demo stores. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
 
-Supabase is the production customer database/auth path. Add the Supabase env vars, then run `supabase/migrations/20260526090000_initial_servicepulse_schema.sql` in the Supabase SQL editor or through the Supabase CLI. Until Supabase is configured, `/dashboard` shows the missing auth configuration instead of exposing a shared demo workspace.
+Supabase is the production customer database/auth path. Add the Supabase env vars, then run `supabase/migrations/20260526090000_initial_servicepulse_schema.sql` in the Supabase SQL editor or through the Supabase CLI. Until Supabase is configured, `/dashboard` shows the missing auth configuration instead of exposing a shared demo workspace. `SUPABASE_SECRET_KEY` is only used server-side for Stripe webhook billing sync and must never be exposed in browser code.
 
-Stripe billing is server-side only. The customer console posts to `/api/billing/checkout`, which creates a subscription Checkout Session, and `/api/billing/portal`, which opens the hosted customer portal after a Stripe customer is saved. Configure the Stripe webhook endpoint at `/api/billing/webhook` and send at least `checkout.session.completed` and `customer.subscription.deleted`.
+Stripe billing is server-side only. The customer console posts to `/api/billing/checkout`, which creates a subscription Checkout Session, and `/api/billing/portal`, which opens the hosted customer portal after a Stripe customer is saved. Configure the Stripe webhook endpoint at `/api/billing/webhook` and send at least `checkout.session.completed` and `customer.subscription.deleted`; signed webhook events update the Supabase workspace and billing account rows when the Supabase secret key is configured.
 
 The in-app API Key Setup Agent saves validated Gemini keys to `.env.local`, which is ignored by git. It never returns the raw key back to the browser after saving; it only shows a masked key.
 
