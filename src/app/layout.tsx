@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ServicePulse AI | Gemini XPRIZE",
+  title: "ServicePulse | Local Service SaaS",
   description:
-    "AI operations desk for local service businesses, built for the Gemini XPRIZE."
+    "AI operations desk for local service businesses."
 };
 
 export default function RootLayout({

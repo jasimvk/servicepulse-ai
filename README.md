@@ -16,9 +16,11 @@ ServicePulse AI is aligned to the prize criteria:
 
 The app currently includes:
 
-- Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics.
+- Customer-facing SaaS console at `/` for workspace onboarding, plan limits, team seats, usage, and billing readiness.
+- Separate personal prize workspace at `/prize` for submission evidence and judging materials.
+- Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics in the personal prize workspace.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
-- Separate `/saas` console for workspace onboarding, plan limits, team seats, usage, and billing readiness.
+- Alternate `/saas` console route for the same customer-facing SaaS surface.
 - Business onboarding/workbench form for service menu, territory, technician, and lead message.
 - Job Inbox for tracking customer requests through quote, booking, invoice, payment, and follow-up.
 - Pilot CRM for tracking real outreach, paid pilots, permission, payment links, and evidence links.
@@ -50,6 +52,7 @@ Open:
 ```text
 http://localhost:3000
 http://localhost:3000/saas
+http://localhost:3000/prize
 ```
 
 ## Environment
@@ -119,8 +122,9 @@ Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect 
 ## Important Files
 
 ```text
-src/app/page.tsx                     Main product/dashboard page
-src/app/saas/page.tsx                Minimal SaaS console around the product
+src/app/page.tsx                     Customer-facing minimal SaaS console
+src/app/saas/page.tsx                Alternate SaaS console route
+src/app/prize/page.tsx               Personal prize/submission workspace
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
 src/app/api/account/route.ts         SaaS account settings API
