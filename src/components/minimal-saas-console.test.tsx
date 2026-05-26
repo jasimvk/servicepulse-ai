@@ -49,7 +49,7 @@ const account: AccountSettings = {
 
 describe("MinimalSaasConsole", () => {
   it("renders a minimal onboarding console for a new workspace", () => {
-    render(
+    const { container } = render(
       <MinimalSaasConsole
         account={defaultAccount}
         summary={getAccountSummary(defaultAccount)}
@@ -61,6 +61,9 @@ describe("MinimalSaasConsole", () => {
     expect(screen.getByText("Launch 25%")).toBeTruthy();
     expect(screen.getByText("Agent runs 0/150")).toBeTruthy();
     expect(screen.getByText("No team seats")).toBeTruthy();
+    expect(
+      container.querySelector('form[action="/api/billing/checkout"]')
+    ).toBeTruthy();
   });
 
   it("renders subscribed workspace, usage, team, and product modules", () => {

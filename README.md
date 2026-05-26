@@ -17,7 +17,7 @@ ServicePulse AI is aligned to the prize criteria:
 The app currently includes:
 
 - Customer-facing SaaS landing page at `/` with product workflow, pricing, and console calls to action.
-- Customer SaaS console at `/dashboard` for workspace onboarding, plan limits, team seats, usage, and billing readiness.
+- Customer SaaS console at `/dashboard` for workspace onboarding, plan limits, team seats, usage, Stripe checkout, and billing readiness.
 - Separate personal prize workspace at `/prize` for submission evidence and judging materials.
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics in the personal prize workspace.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
@@ -36,6 +36,9 @@ The app currently includes:
 - Submission evidence ledger with quoted value, AI decisions logged, paying-user count, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
 - `/api/account` route for SaaS workspace, plan, billing, team, usage, and launch settings.
+- `/api/billing/checkout` route for Stripe subscription Checkout Sessions.
+- `/api/billing/portal` route for Stripe customer portal sessions.
+- `/api/billing/webhook` route for signed Stripe billing events.
 - `/api/jobs` route for saved customer jobs.
 - `/api/pilots` route for the real business pilot pipeline.
 - `/api/evidence` route for seeded evidence.
@@ -70,6 +73,14 @@ Then set:
 GEMINI_API_KEY=your_google_ai_studio_key
 GEMINI_MODEL=gemini-2.5-flash
 SERVICEPULSE_DATA_DIR=.data
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Stripe subscription billing
+STRIPE_SECRET_KEY=sk_test_or_live_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+STRIPE_PRICE_STARTER=price_starter_monthly
+STRIPE_PRICE_GROWTH=price_growth_monthly
+STRIPE_PRICE_PRO=price_pro_monthly
 
 # Optional for production persistent storage
 KV_REST_API_URL=https://your-upstash-kv-url.upstash.io
@@ -81,6 +92,8 @@ Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence a
 `SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json`, the business profile is written to `.data/business-profile.json`, account settings are written to `.data/account-settings.json`, jobs are written to `.data/job-pipeline.json`, and real pilot records are written to `.data/pilot-pipeline.json`. `.data/` is ignored by git.
 
 If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
+
+Stripe billing is server-side only. The customer console posts to `/api/billing/checkout`, which creates a subscription Checkout Session, and `/api/billing/portal`, which opens the hosted customer portal after a Stripe customer is saved. Configure the Stripe webhook endpoint at `/api/billing/webhook` and send at least `checkout.session.completed` and `customer.subscription.deleted`.
 
 The in-app API Key Setup Agent saves validated Gemini keys to `.env.local`, which is ignored by git. It never returns the raw key back to the browser after saving; it only shows a masked key.
 
@@ -101,7 +114,7 @@ Current test coverage is focused on:
 - evidence ledger and submission readiness scoring
 - job inbox, invoice tracking, API behavior, and proof packet export metrics
 - pilot pipeline persistence, API behavior, and proof packet export metrics
-- SaaS account persistence, API behavior, minimal console rendering, and proof packet export metrics
+- SaaS account persistence, Stripe billing helpers/API behavior, minimal console rendering, and proof packet export metrics
 
 ## Public Deployment
 
@@ -130,6 +143,9 @@ src/app/prize/page.tsx               Personal prize/submission workspace
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
 src/app/api/account/route.ts         SaaS account settings API
+src/app/api/billing/checkout/route.ts Stripe subscription Checkout API
+src/app/api/billing/portal/route.ts  Stripe customer portal API
+src/app/api/billing/webhook/route.ts Signed Stripe billing webhook
 src/app/api/jobs/route.ts            Customer job inbox API
 src/app/api/pilots/route.ts          Real business pilot pipeline API
 src/app/api/profile/route.ts         Saved business profile API
@@ -150,6 +166,7 @@ src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.loc
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
 src/lib/evidence-store.ts            KV-backed or file-backed evidence persistence
 src/lib/account-store.ts             KV-backed or file-backed SaaS account, team, usage, and launch persistence
+src/lib/stripe-billing.ts            Stripe checkout, portal, and webhook billing helpers
 src/lib/job-store.ts                 KV-backed or file-backed customer job persistence
 src/lib/pilot-store.ts               KV-backed or file-backed pilot pipeline persistence
 src/lib/profile-store.ts             KV-backed or file-backed business profile persistence

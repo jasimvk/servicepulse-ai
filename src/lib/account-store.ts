@@ -44,6 +44,8 @@ export type AccountSettings = {
   trialEndsAt: string;
   checkoutUrl: string;
   customerPortalUrl: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
   dataRegion: "us" | "eu" | "uae";
   usage: AccountUsage;
   teamMembers: TeamMember[];
@@ -208,10 +210,14 @@ export function getAccountSummary(account: AccountSettings): AccountSummary {
     (member) => member.status === "invited"
   ).length;
   const seatsUsed = normalized.teamMembers.length || normalized.seatsUsed;
+  const hasLegacyBillingLinks =
+    Boolean(normalized.checkoutUrl) && Boolean(normalized.customerPortalUrl);
+  const hasStripeBilling =
+    Boolean(normalized.stripeCustomerId) ||
+    Boolean(normalized.stripeSubscriptionId);
   const readyForBilling =
     Boolean(normalized.ownerEmail) &&
-    Boolean(normalized.checkoutUrl) &&
-    Boolean(normalized.customerPortalUrl) &&
+    (hasLegacyBillingLinks || hasStripeBilling) &&
     normalized.subscriptionStatus !== "canceled";
   const goLiveChecklist: LaunchChecklistItem[] = [
     {
@@ -248,7 +254,7 @@ export function getAccountSummary(account: AccountSettings): AccountSummary {
     invitedMembers,
     monthlyRecurringRevenue:
       normalized.subscriptionStatus === "active" ? normalized.monthlyPrice : 0,
-    needsPaymentSetup: !normalized.checkoutUrl || !normalized.customerPortalUrl,
+    needsPaymentSetup: !hasLegacyBillingLinks && !hasStripeBilling,
     launchReady: goLiveScore === 100,
     goLiveScore,
     goLiveChecklist,
@@ -296,7 +302,7 @@ const planEntitlements: Record<
 function normalizeAccount(value: unknown): AccountSettings {
   const record = isRecord(value) ? value : {};
 
-  return {
+  const normalized: AccountSettings = {
     workspaceName: stringOrDefault(
       record.workspaceName,
       defaultAccount.workspaceName
@@ -326,6 +332,19 @@ function normalizeAccount(value: unknown): AccountSettings {
     teamMembers: normalizeTeamMembers(record.teamMembers),
     updatedAt: stringOrDefault(record.updatedAt, new Date().toISOString())
   };
+
+  const stripeCustomerId = stringOrDefault(record.stripeCustomerId, "");
+  const stripeSubscriptionId = stringOrDefault(record.stripeSubscriptionId, "");
+
+  if (stripeCustomerId) {
+    normalized.stripeCustomerId = stripeCustomerId;
+  }
+
+  if (stripeSubscriptionId) {
+    normalized.stripeSubscriptionId = stripeSubscriptionId;
+  }
+
+  return normalized;
 }
 
 function buildUsageMeter(usedValue: number, limit: number): UsageMeter {

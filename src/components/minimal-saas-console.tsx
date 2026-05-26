@@ -11,7 +11,11 @@ import {
   UsersRound
 } from "lucide-react";
 import Link from "next/link";
-import type { AccountSettings, AccountSummary } from "@/lib/account-store";
+import type {
+  AccountPlan,
+  AccountSettings,
+  AccountSummary
+} from "@/lib/account-store";
 
 type MinimalSaasConsoleProps = {
   account: AccountSettings;
@@ -65,13 +69,16 @@ export function MinimalSaasConsole({
             >
               Product
             </Link>
-            <a
-              className="inline-flex items-center gap-2 rounded bg-[#161616] px-3 py-2 font-semibold text-white transition hover:bg-black"
-              href={account.checkoutUrl || "#billing"}
-            >
-              Subscribe
-              <ArrowRight size={14} />
-            </a>
+            <form action="/api/billing/checkout" method="POST">
+              <input name="plan" type="hidden" value={account.plan} />
+              <button
+                className="inline-flex items-center gap-2 rounded bg-[#161616] px-3 py-2 font-semibold text-white transition hover:bg-black"
+                type="submit"
+              >
+                Subscribe
+                <ArrowRight size={14} />
+              </button>
+            </form>
           </nav>
         </header>
 
@@ -137,8 +144,11 @@ export function MinimalSaasConsole({
                 {account.subscriptionStatus} · {account.billingCycle}
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <BillingLink href={account.checkoutUrl} label="Checkout" />
-                <BillingLink href={account.customerPortalUrl} label="Portal" />
+                <BillingAction label="Checkout" plan={account.plan} />
+                <BillingAction
+                  disabled={!account.stripeCustomerId}
+                  label="Portal"
+                />
               </div>
             </div>
           </aside>
@@ -288,23 +298,32 @@ function UsageMeter({
   );
 }
 
-function BillingLink({ href, label }: { href: string; label: string }) {
-  if (!href) {
+function BillingAction({
+  disabled = false,
+  label,
+  plan
+}: {
+  disabled?: boolean;
+  label: string;
+  plan?: AccountPlan;
+}) {
+  if (disabled) {
     return (
       <span className="rounded border border-dashed border-black/15 px-3 py-2 text-center text-xs text-black/40">
-        {label} unset
+        {label} after checkout
       </span>
     );
   }
 
   return (
-    <a
-      className="rounded border border-black/10 bg-[#fbfbf9] px-3 py-2 text-center text-xs font-semibold text-black/70"
-      href={href}
-      rel="noreferrer"
-      target="_blank"
-    >
-      {label}
-    </a>
+    <form action={`/api/billing/${label.toLowerCase()}`} method="POST">
+      {plan ? <input name="plan" type="hidden" value={plan} /> : null}
+      <button
+        className="w-full rounded border border-black/10 bg-[#fbfbf9] px-3 py-2 text-center text-xs font-semibold text-black/70 transition hover:border-black/25 hover:text-black"
+        type="submit"
+      >
+        {label}
+      </button>
+    </form>
   );
 }
