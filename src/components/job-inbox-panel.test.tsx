@@ -18,6 +18,10 @@ const job: JobRecord = {
   scheduledWindow: "Today, 4:30 PM - 6:00 PM",
   paymentUrl: "https://pay.example.com/maya",
   evidenceUrl: "https://drive.google.com/job-proof",
+  invoiceNumber: "INV-1001",
+  invoiceStatus: "paid",
+  invoiceDueDate: "2026-05-21",
+  amountPaid: 420,
   nextAction: "Send review request",
   notes: "Deposit collected.",
   updatedAt: "2026-05-21T12:00:00.000Z"
@@ -50,5 +54,7 @@ describe("JobInboxPanel", () => {
     expect(screen.getByText("Maya Khan")).toBeTruthy();
     expect(screen.getAllByText("paid").length).toBeGreaterThan(0);
     expect(screen.getAllByText("$420").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Balance").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("$0").length).toBeGreaterThan(0);
   });
 });

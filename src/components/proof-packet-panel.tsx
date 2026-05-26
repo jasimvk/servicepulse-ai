@@ -56,6 +56,9 @@ export function ProofPacketPanel({ packet }: ProofPacketPanelProps) {
               <ProofMetric label="Jobs" value={packet.metrics.customerJobs} />
               <ProofMetric label="Booked jobs" value={packet.metrics.bookedJobs} />
               <ProofMetric label="Job paid" value={`$${packet.metrics.jobPaidRevenue}`} />
+              <ProofMetric label="Collected" value={`$${packet.metrics.invoiceCollected}`} />
+              <ProofMetric label="Balance" value={`$${packet.metrics.invoiceBalanceDue}`} />
+              <ProofMetric label="Overdue" value={packet.metrics.overdueInvoices} />
             </div>
 
             <div className="mt-4 rounded border border-white/5 bg-black/20 p-3">

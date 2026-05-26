@@ -17,7 +17,7 @@
 ### [0:20 - 0:50] Segment 2: Lead Triage & Job Inbox
 * **Visual:** Screen capture zoom-in on the **Interactive Workbench** and **Job Inbox**. Show a lead message being entered:
   *“My AC is blowing warm air and making a loud rattling sound. Can someone come by today? I live in North Austin.”*
-* **Visual Action:** Run the playbook, then save the request as a job with stage, quote, schedule, payment link, and next action.
+* **Visual Action:** Run the playbook, then save the request as a job with quote, schedule, invoice status, paid amount, balance, and next action.
 * **Audio / Voiceover:**  
   "Let’s see it in action. When a new customer request arrives, ServicePulse AI uses Gemini to triage the lead. It extracts the location, assesses urgency, assigns a confidence level, and drafts a precise quote."
 * **Visual Action:** Highlight the auto-generated quote details and show the source badge. If no live key is configured, call out that the run is clearly labeled demo mode.

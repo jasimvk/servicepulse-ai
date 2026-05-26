@@ -33,6 +33,10 @@ export type JobRecord = {
   scheduledWindow: string;
   paymentUrl: string;
   evidenceUrl: string;
+  invoiceNumber: string;
+  invoiceStatus: "not-sent" | "sent" | "deposit-paid" | "paid" | "overdue";
+  invoiceDueDate: string;
+  amountPaid: number;
   nextAction: string;
   notes: string;
   updatedAt: string;
@@ -46,6 +50,10 @@ export type JobSummary = {
   paidJobs: number;
   quotedValue: number;
   paidRevenue: number;
+  invoicedValue: number;
+  amountCollected: number;
+  balanceDue: number;
+  overdueJobs: number;
   nextActions: Array<Pick<
     JobRecord,
     "id" | "customerName" | "nextAction" | "stage" | "scheduledWindow"
@@ -168,6 +176,10 @@ export function getJobSummary(jobs: JobRecord[]): JobSummary {
   let paidJobs = 0;
   let quotedValue = 0;
   let paidRevenue = 0;
+  let invoicedValue = 0;
+  let amountCollected = 0;
+  let balanceDue = 0;
+  let overdueJobs = 0;
 
   for (const job of normalized) {
     stageCounts[job.stage] += 1;
@@ -184,6 +196,16 @@ export function getJobSummary(jobs: JobRecord[]): JobSummary {
       paidJobs += 1;
       paidRevenue += job.quoteAmount;
     }
+
+    if (job.invoiceStatus !== "not-sent") {
+      invoicedValue += job.quoteAmount;
+      amountCollected += job.amountPaid;
+      balanceDue += Math.max(job.quoteAmount - job.amountPaid, 0);
+    }
+
+    if (job.invoiceStatus === "overdue") {
+      overdueJobs += 1;
+    }
   }
 
   return {
@@ -194,6 +216,10 @@ export function getJobSummary(jobs: JobRecord[]): JobSummary {
     paidJobs,
     quotedValue,
     paidRevenue,
+    invoicedValue,
+    amountCollected,
+    balanceDue,
+    overdueJobs,
     nextActions: normalized
       .filter((job) => job.nextAction)
       .slice(0, 5)
@@ -243,10 +269,29 @@ function normalizeJobRecord(value: unknown): JobRecord {
     scheduledWindow: stringOrDefault(record.scheduledWindow, "Unscheduled"),
     paymentUrl: stringOrDefault(record.paymentUrl, ""),
     evidenceUrl: stringOrDefault(record.evidenceUrl, ""),
+    invoiceNumber: stringOrDefault(record.invoiceNumber, ""),
+    invoiceStatus: normalizeInvoiceStatus(record.invoiceStatus),
+    invoiceDueDate: stringOrDefault(record.invoiceDueDate, ""),
+    amountPaid: positiveNumberOrZero(record.amountPaid),
     nextAction: stringOrDefault(record.nextAction, "Qualify request"),
     notes: stringOrDefault(record.notes, ""),
     updatedAt: stringOrDefault(record.updatedAt, new Date().toISOString())
   };
+}
+
+function normalizeInvoiceStatus(value: unknown): JobRecord["invoiceStatus"] {
+  const statuses: JobRecord["invoiceStatus"][] = [
+    "not-sent",
+    "sent",
+    "deposit-paid",
+    "paid",
+    "overdue"
+  ];
+
+  return typeof value === "string" &&
+    statuses.includes(value as JobRecord["invoiceStatus"])
+    ? (value as JobRecord["invoiceStatus"])
+    : "not-sent";
 }
 
 function normalizeStage(value: unknown): JobStage {

@@ -51,6 +51,9 @@ export type ProofPacket = {
     paidJobs: number;
     jobQuotedValue: number;
     jobPaidRevenue: number;
+    invoiceCollected: number;
+    invoiceBalanceDue: number;
+    overdueInvoices: number;
   };
   honesty: {
     claimsRealRevenue: boolean;
@@ -164,7 +167,10 @@ export function buildProofPacket({
       bookedJobs: jobSummary.bookedJobs,
       paidJobs: jobSummary.paidJobs,
       jobQuotedValue: jobSummary.quotedValue,
-      jobPaidRevenue: jobSummary.paidRevenue
+      jobPaidRevenue: jobSummary.paidRevenue,
+      invoiceCollected: jobSummary.amountCollected,
+      invoiceBalanceDue: jobSummary.balanceDue,
+      overdueInvoices: jobSummary.overdueJobs
     },
     honesty: {
       claimsRealRevenue,

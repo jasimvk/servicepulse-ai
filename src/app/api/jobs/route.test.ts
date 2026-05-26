@@ -22,6 +22,10 @@ const job: JobRecord = {
   scheduledWindow: "Today, 4:30 PM - 6:00 PM",
   paymentUrl: "",
   evidenceUrl: "",
+  invoiceNumber: "INV-1001",
+  invoiceStatus: "sent",
+  invoiceDueDate: "2026-05-21",
+  amountPaid: 0,
   nextAction: "Confirm technician slot",
   notes: "Owner approved quote.",
   updatedAt: "2026-05-21T12:00:00.000Z"

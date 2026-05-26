@@ -41,6 +41,10 @@ const blankJob: JobRecord = {
   scheduledWindow: "Today, 4:30 PM - 6:00 PM",
   paymentUrl: "",
   evidenceUrl: "",
+  invoiceNumber: "",
+  invoiceStatus: "not-sent",
+  invoiceDueDate: "",
+  amountPaid: 0,
   nextAction: "Qualify and send quote",
   notes: "",
   updatedAt: ""
@@ -70,6 +74,14 @@ const channelLabels: Record<JobRecord["channel"], string> = {
   email: "Email",
   phone: "Phone",
   other: "Other"
+};
+
+const invoiceStatusLabels: Record<JobRecord["invoiceStatus"], string> = {
+  "not-sent": "not sent",
+  sent: "sent",
+  "deposit-paid": "deposit paid",
+  paid: "paid",
+  overdue: "overdue"
 };
 
 export function JobInboxPanel({
@@ -182,9 +194,9 @@ export function JobInboxPanel({
         <div className="mt-5 grid gap-4 md:grid-cols-5">
           <JobMetric icon={ClipboardList} label="Open jobs" value={summary.openJobs} />
           <JobMetric icon={MessageSquareText} label="Quoted" value={`$${summary.quotedValue}`} />
-          <JobMetric icon={CalendarCheck} label="Booked" value={summary.bookedJobs} />
-          <JobMetric icon={WalletCards} label="Paid jobs" value={summary.paidJobs} />
-          <JobMetric icon={BadgeDollarSign} label="Paid revenue" value={`$${summary.paidRevenue}`} />
+          <JobMetric icon={WalletCards} label="Collected" value={`$${summary.amountCollected}`} />
+          <JobMetric icon={BadgeDollarSign} label="Balance" value={`$${summary.balanceDue}`} />
+          <JobMetric icon={CalendarCheck} label="Overdue" value={summary.overdueJobs} />
         </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -304,6 +316,51 @@ export function JobInboxPanel({
                 }
               />
               <JobInput
+                label="Invoice #"
+                value={draft.invoiceNumber}
+                onChange={(invoiceNumber) =>
+                  setDraft((current) => ({ ...current, invoiceNumber }))
+                }
+              />
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-white/55">
+                Invoice status
+                <select
+                  className="mt-1.5 w-full rounded border border-white/10 bg-[#080808] px-3 py-2 text-sm text-white outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/35"
+                  value={draft.invoiceStatus}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      invoiceStatus:
+                        event.target.value as JobRecord["invoiceStatus"]
+                    }))
+                  }
+                >
+                  {Object.entries(invoiceStatusLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <JobInput
+                label="Due date"
+                value={draft.invoiceDueDate}
+                onChange={(invoiceDueDate) =>
+                  setDraft((current) => ({ ...current, invoiceDueDate }))
+                }
+              />
+              <JobInput
+                label="Paid"
+                type="number"
+                value={draft.amountPaid.toString()}
+                onChange={(amountPaid) =>
+                  setDraft((current) => ({
+                    ...current,
+                    amountPaid: Number(amountPaid)
+                  }))
+                }
+              />
+              <JobInput
                 label="Evidence link"
                 value={draft.evidenceUrl}
                 onChange={(evidenceUrl) =>
@@ -392,6 +449,9 @@ export function JobInboxPanel({
 
                     <div className="mt-3 grid gap-2 sm:grid-cols-3">
                       <MiniFact label="Quote" value={`$${job.quoteAmount}`} />
+                      <MiniFact label="Paid" value={`$${job.amountPaid}`} />
+                      <MiniFact label="Balance" value={`$${getBalance(job)}`} />
+                      <MiniFact label="Invoice" value={invoiceStatusLabels[job.invoiceStatus]} />
                       <MiniFact label="Schedule" value={job.scheduledWindow} />
                       <MiniFact label="Source" value={channelLabels[job.channel]} />
                     </div>
@@ -475,4 +535,8 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 
   return slug || `job-${Date.now()}`;
+}
+
+function getBalance(job: JobRecord): number {
+  return Math.max(job.quoteAmount - job.amountPaid, 0);
 }

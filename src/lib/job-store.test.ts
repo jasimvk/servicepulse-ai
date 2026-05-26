@@ -32,6 +32,10 @@ const paidJob: JobRecord = {
   scheduledWindow: "Today, 4:30 PM - 6:00 PM",
   paymentUrl: "https://pay.example.com/maya",
   evidenceUrl: "https://drive.google.com/job-proof",
+  invoiceNumber: "INV-1001",
+  invoiceStatus: "paid",
+  invoiceDueDate: "2026-05-21",
+  amountPaid: 420,
   nextAction: "Send review request",
   notes: "Deposit collected.",
   updatedAt: "2026-05-21T12:00:00.000Z"
@@ -77,7 +81,31 @@ describe("job store", () => {
       bookedJobs: 1,
       paidJobs: 1,
       quotedValue: 420,
-      paidRevenue: 420
+      paidRevenue: 420,
+      invoicedValue: 420,
+      amountCollected: 420,
+      balanceDue: 0
+    });
+  });
+
+  it("tracks invoice balances and overdue jobs", async () => {
+    const overdueJob = {
+      ...paidJob,
+      id: "maya-khan-overdue",
+      stage: "booked",
+      invoiceStatus: "overdue",
+      amountPaid: 100,
+      updatedAt: "2026-05-21T14:00:00.000Z"
+    } as JobRecord;
+
+    await upsertJobRecord(overdueJob, dataDir);
+
+    const summary = getJobSummary(await readJobPipeline(dataDir));
+    expect(summary).toMatchObject({
+      invoicedValue: 420,
+      amountCollected: 100,
+      balanceDue: 320,
+      overdueJobs: 1
     });
   });
 

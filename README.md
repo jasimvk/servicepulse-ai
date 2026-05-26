@@ -19,7 +19,7 @@ The app currently includes:
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
 - Business onboarding/workbench form for service menu, territory, technician, and lead message.
-- Job Inbox for tracking customer requests through quote, booking, payment, and follow-up.
+- Job Inbox for tracking customer requests through quote, booking, invoice, payment, and follow-up.
 - Pilot CRM for tracking real outreach, paid pilots, permission, payment links, and evidence links.
 - `/api/agent/lead` route that runs the agent in either live Gemini mode or deterministic demo mode.
 - `/api/setup/keys` route that validates Gemini keys and writes `.env.local` only after validation succeeds.
@@ -91,7 +91,7 @@ Current test coverage is focused on:
 - agent workflow and business metrics
 - Gemini prompt/response adapter
 - evidence ledger and submission readiness scoring
-- job inbox persistence, API behavior, and proof packet export metrics
+- job inbox, invoice tracking, API behavior, and proof packet export metrics
 - pilot pipeline persistence, API behavior, and proof packet export metrics
 
 ## Public Deployment

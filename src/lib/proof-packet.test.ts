@@ -43,6 +43,10 @@ const paidJob: JobRecord = {
   scheduledWindow: "Today, 4:30 PM - 6:00 PM",
   paymentUrl: "https://pay.example.com/maya",
   evidenceUrl: "https://drive.google.com/job-proof",
+  invoiceNumber: "INV-1001",
+  invoiceStatus: "paid",
+  invoiceDueDate: "2026-05-21",
+  amountPaid: 420,
   nextAction: "Send review request",
   notes: "Deposit collected.",
   updatedAt: "2026-05-21T12:00:00.000Z"
@@ -122,6 +126,9 @@ describe("proof packet", () => {
     expect(packet.metrics.paidJobs).toBe(1);
     expect(packet.metrics.jobQuotedValue).toBe(420);
     expect(packet.metrics.jobPaidRevenue).toBe(420);
+    expect(packet.metrics.invoiceCollected).toBe(420);
+    expect(packet.metrics.invoiceBalanceDue).toBe(0);
+    expect(packet.metrics.overdueInvoices).toBe(0);
     expect(
       packet.requiredItems.find((item) => item.id === "customer-job")?.status
     ).toBe("ready");
