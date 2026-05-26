@@ -1,4 +1,9 @@
 import type { EvidenceEntry } from "./evidence-ledger";
+import {
+  defaultAccount,
+  getAccountSummary,
+  type AccountSummary
+} from "./account-store";
 import { getJobSummary, type JobSummary } from "./job-store";
 import { getPilotSummary, type PilotSummary } from "./pilot-store";
 
@@ -54,6 +59,10 @@ export type ProofPacket = {
     invoiceCollected: number;
     invoiceBalanceDue: number;
     overdueInvoices: number;
+    saasReady: boolean;
+    subscriptionRevenue: number;
+    seatsUsed: number;
+    seatsIncluded: number;
   };
   honesty: {
     claimsRealRevenue: boolean;
@@ -89,6 +98,7 @@ export type ProofPacket = {
 };
 
 type BuildProofPacketOptions = {
+  accountSummary?: AccountSummary;
   ledger: EvidenceEntry[];
   financialReport?: FinancialReport;
   jobSummary?: JobSummary;
@@ -123,6 +133,7 @@ export function getDefaultFinancialReport(): FinancialReport {
 }
 
 export function buildProofPacket({
+  accountSummary = getAccountSummary(defaultAccount),
   country,
   demoVideoUrl,
   financialReport = getDefaultFinancialReport(),
@@ -170,7 +181,11 @@ export function buildProofPacket({
       jobPaidRevenue: jobSummary.paidRevenue,
       invoiceCollected: jobSummary.amountCollected,
       invoiceBalanceDue: jobSummary.balanceDue,
-      overdueInvoices: jobSummary.overdueJobs
+      overdueInvoices: jobSummary.overdueJobs,
+      saasReady: accountSummary.readyForBilling,
+      subscriptionRevenue: accountSummary.monthlyRecurringRevenue,
+      seatsUsed: accountSummary.seatsUsed,
+      seatsIncluded: accountSummary.seatsIncluded
     },
     honesty: {
       claimsRealRevenue,
@@ -243,6 +258,12 @@ export function buildProofPacket({
         label: "Saved customer job evidence",
         status: jobSummary.paidJobs > 0 ? "ready" : "needs-live-evidence",
         value: `${jobSummary.total} jobs, ${jobSummary.bookedJobs} booked, ${jobSummary.paidJobs} paid`
+      },
+      {
+        id: "billing-setup",
+        label: "SaaS billing setup",
+        status: accountSummary.readyForBilling ? "ready" : "needs-owner",
+        value: `${accountSummary.planLabel}, $${accountSummary.monthlyRecurringRevenue} recurring, ${accountSummary.seatsUsed}/${accountSummary.seatsIncluded} seats`
       }
     ]
   };

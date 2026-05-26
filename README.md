@@ -18,6 +18,7 @@ The app currently includes:
 
 - Owner dashboard with modeled revenue, lead conversion, workflow, and margin metrics.
 - API Key Setup Agent for validating and saving Gemini credentials locally.
+- SaaS Account panel for workspace, plan, seats, billing links, subscription status, and region.
 - Business onboarding/workbench form for service menu, territory, technician, and lead message.
 - Job Inbox for tracking customer requests through quote, booking, invoice, payment, and follow-up.
 - Pilot CRM for tracking real outreach, paid pilots, permission, payment links, and evidence links.
@@ -28,8 +29,10 @@ The app currently includes:
 - Database-backed or file-backed evidence store for agent runs.
 - Database-backed or file-backed job store for owner workflow tracking.
 - Database-backed or file-backed pilot pipeline store for real business validation.
+- Database-backed or file-backed account store for SaaS billing readiness.
 - Submission evidence ledger with quoted value, AI decisions logged, paying-user count, readiness scoring, and next proof needed.
 - `/api/profile` route for saved business settings.
+- `/api/account` route for SaaS workspace, plan, billing, and seat settings.
 - `/api/jobs` route for saved customer jobs.
 - `/api/pilots` route for the real business pilot pipeline.
 - `/api/evidence` route for seeded evidence.
@@ -70,7 +73,7 @@ KV_REST_API_TOKEN=your_upstash_kv_token
 
 Without `GEMINI_API_KEY`, the app runs in honest demo mode and labels evidence as `deterministic-demo`.
 
-`SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json`, the business profile is written to `.data/business-profile.json`, jobs are written to `.data/job-pipeline.json`, and real pilot records are written to `.data/pilot-pipeline.json`. `.data/` is ignored by git.
+`SERVICEPULSE_DATA_DIR` controls the local file-backed workspace. By default, evidence entries are written to `.data/evidence-ledger.json`, the business profile is written to `.data/business-profile.json`, account settings are written to `.data/account-settings.json`, jobs are written to `.data/job-pipeline.json`, and real pilot records are written to `.data/pilot-pipeline.json`. `.data/` is ignored by git.
 
 If `KV_REST_API_URL` and `KV_REST_API_TOKEN` are provided, the application will use the Upstash/Vercel KV REST database as its primary storage. If they are omitted, it gracefully falls back to the file system or OS temp storage on read-only platforms.
 
@@ -93,6 +96,7 @@ Current test coverage is focused on:
 - evidence ledger and submission readiness scoring
 - job inbox, invoice tracking, API behavior, and proof packet export metrics
 - pilot pipeline persistence, API behavior, and proof packet export metrics
+- SaaS account persistence, API behavior, UI rendering, and proof packet export metrics
 
 ## Public Deployment
 
@@ -117,12 +121,14 @@ Alternatively, push the repository to GitHub, GitLab, or Bitbucket, and connect 
 src/app/page.tsx                     Main product/dashboard page
 src/app/api/agent/lead/route.ts      Lead-to-quote agent API
 src/app/api/evidence/route.ts        Evidence ledger API
+src/app/api/account/route.ts         SaaS account settings API
 src/app/api/jobs/route.ts            Customer job inbox API
 src/app/api/pilots/route.ts          Real business pilot pipeline API
 src/app/api/profile/route.ts         Saved business profile API
 src/app/api/setup/keys/route.ts      Gemini key validation and local env writer
 src/app/api/submission/proof-packet/route.ts Judge proof packet export
 src/components/api-key-setup-agent.tsx API key setup UI
+src/components/saas-account-panel.tsx SaaS account and billing readiness UI
 src/components/job-inbox-panel.tsx   Customer job tracker UI
 src/components/pilot-crm-panel.tsx   Real business pilot tracker UI
 src/components/servicepulse-workbench.tsx Interactive business setup + agent run UI
@@ -133,6 +139,7 @@ src/lib/gemini-agent.ts              Gemini API adapter and demo fallback
 src/lib/api-key-setup.ts             Secret masking, Gemini validation, .env.local merge logic
 src/lib/evidence-ledger.ts           Submission proof ledger and readiness scoring
 src/lib/evidence-store.ts            KV-backed or file-backed evidence persistence
+src/lib/account-store.ts             KV-backed or file-backed SaaS account persistence
 src/lib/job-store.ts                 KV-backed or file-backed customer job persistence
 src/lib/pilot-store.ts               KV-backed or file-backed pilot pipeline persistence
 src/lib/profile-store.ts             KV-backed or file-backed business profile persistence

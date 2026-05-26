@@ -31,12 +31,18 @@ import { ApiKeySetupAgent } from "@/components/api-key-setup-agent";
 import { ProofPacketPanel } from "@/components/proof-packet-panel";
 import { PilotCrmPanel } from "@/components/pilot-crm-panel";
 import { JobInboxPanel } from "@/components/job-inbox-panel";
+import { SaasAccountPanel } from "@/components/saas-account-panel";
 import {
   buildProofPacket,
   getDefaultFinancialReport
 } from "@/lib/proof-packet";
 import { getPilotSummary, type PilotRecord } from "@/lib/pilot-store";
 import { getJobSummary, type JobRecord } from "@/lib/job-store";
+import {
+  defaultAccount,
+  getAccountSummary,
+  type AccountSettings
+} from "@/lib/account-store";
 
 const agentRun = buildAgentRun({
   customer: "Maya Khan",
@@ -47,12 +53,15 @@ const agentRun = buildAgentRun({
 
 const metrics = getDashboardMetrics(getBusinessSnapshot());
 const ledger = getSeedEvidenceLedger();
+const initialAccount: AccountSettings = defaultAccount;
+const accountSummary = getAccountSummary(initialAccount);
 const initialJobs: JobRecord[] = [];
 const jobSummary = getJobSummary(initialJobs);
 const initialPilots: PilotRecord[] = [];
 const pilotSummary = getPilotSummary(initialPilots);
 const submissionBrief = buildSubmissionBrief(ledger);
 const proofPacket = buildProofPacket({
+  accountSummary,
   ledger,
   financialReport: getDefaultFinancialReport(),
   jobSummary,
@@ -258,6 +267,11 @@ export default function Home() {
       </section>
 
       <ApiKeySetupAgent />
+
+      <SaasAccountPanel
+        initialAccount={initialAccount}
+        initialSummary={accountSummary}
+      />
 
       <ServicePulseWorkbench initialRun={agentRun} />
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAccountSummary, readAccount } from "@/lib/account-store";
 import { getEvidenceLedger } from "@/lib/evidence-store";
 import { getJobSummary, readJobPipeline } from "@/lib/job-store";
 import { getPilotSummary, readPilotPipeline } from "@/lib/pilot-store";
@@ -11,9 +12,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ledger = await getEvidenceLedger();
+  const account = await readAccount();
   const jobs = await readJobPipeline();
   const pilots = await readPilotPipeline();
   const packet = buildProofPacket({
+    accountSummary: getAccountSummary(account),
     ledger,
     financialReport: getDefaultFinancialReport(),
     jobSummary: getJobSummary(jobs),

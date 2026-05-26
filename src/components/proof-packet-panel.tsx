@@ -59,6 +59,18 @@ export function ProofPacketPanel({ packet }: ProofPacketPanelProps) {
               <ProofMetric label="Collected" value={`$${packet.metrics.invoiceCollected}`} />
               <ProofMetric label="Balance" value={`$${packet.metrics.invoiceBalanceDue}`} />
               <ProofMetric label="Overdue" value={packet.metrics.overdueInvoices} />
+              <ProofMetric
+                label="SaaS ready"
+                value={packet.metrics.saasReady ? "yes" : "no"}
+              />
+              <ProofMetric
+                label="Subscription"
+                value={`$${packet.metrics.subscriptionRevenue}`}
+              />
+              <ProofMetric
+                label="Seats"
+                value={`${packet.metrics.seatsUsed}/${packet.metrics.seatsIncluded}`}
+              />
             </div>
 
             <div className="mt-4 rounded border border-white/5 bg-black/20 p-3">

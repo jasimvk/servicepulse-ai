@@ -6,6 +6,7 @@ import {
 } from "./proof-packet";
 import { getPilotSummary, type PilotRecord } from "./pilot-store";
 import { getJobSummary, type JobRecord } from "./job-store";
+import { getAccountSummary, type AccountSettings } from "./account-store";
 
 const paidPilot: PilotRecord = {
   id: "jumeirah-ac-pro",
@@ -50,6 +51,22 @@ const paidJob: JobRecord = {
   nextAction: "Send review request",
   notes: "Deposit collected.",
   updatedAt: "2026-05-21T12:00:00.000Z"
+};
+
+const activeAccount: AccountSettings = {
+  workspaceName: "CoolFix AC",
+  ownerEmail: "owner@coolfix.example",
+  plan: "growth",
+  subscriptionStatus: "active",
+  billingCycle: "monthly",
+  monthlyPrice: 199,
+  seatsIncluded: 5,
+  seatsUsed: 3,
+  trialEndsAt: "2026-06-05",
+  checkoutUrl: "https://buy.stripe.com/test",
+  customerPortalUrl: "https://billing.stripe.com/test",
+  dataRegion: "us",
+  updatedAt: "2026-05-26T07:00:00.000Z"
 };
 
 describe("proof packet", () => {
@@ -131,6 +148,24 @@ describe("proof packet", () => {
     expect(packet.metrics.overdueInvoices).toBe(0);
     expect(
       packet.requiredItems.find((item) => item.id === "customer-job")?.status
+    ).toBe("ready");
+  });
+
+  it("includes SaaS account readiness when billing settings are connected", () => {
+    const packet = buildProofPacket({
+      ledger: getSeedEvidenceLedger(),
+      accountSummary: getAccountSummary(activeAccount),
+      financialReport: getDefaultFinancialReport(),
+      repositoryUrl: "https://github.com/jasimvk/servicepulse-ai",
+      startDate: "05-21-26"
+    });
+
+    expect(packet.metrics.saasReady).toBe(true);
+    expect(packet.metrics.subscriptionRevenue).toBe(199);
+    expect(packet.metrics.seatsUsed).toBe(3);
+    expect(packet.metrics.seatsIncluded).toBe(5);
+    expect(
+      packet.requiredItems.find((item) => item.id === "billing-setup")?.status
     ).toBe("ready");
   });
 });
